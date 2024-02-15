@@ -9,6 +9,7 @@ if __name__ == '__main__':
     parser.add_argument("-s", "--save", required=True)
     parser.add_argument("-p", "--param", required=True)
     parser.add_argument("-b", "--band", required=True)
+    parser.add_argument("-f", "--save-folder", required=True)
 
     args = parser.parse_args()
 
@@ -16,8 +17,8 @@ if __name__ == '__main__':
         logging.info(f"Starting pre-processing of downloaded images")
 
         down = GoesDownloaderIndividualBboxDate(args.save)
-        down.pre_processing(args.band)
-        down.crop_images_for_bboxs(args.param)
+        #down.pre_processing(args.param, args.band)
+        down.crop_images_for_bboxs(args.param, args.save_folder)
         
         logging.info("Finished pre-processing")
     except Exception as e:

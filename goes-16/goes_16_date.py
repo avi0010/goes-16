@@ -180,7 +180,7 @@ class GoesDownloaderDate(Downloader):
                                                    cropToCutline=True)
 
                         gdal.Warp(f"{self.root_dir}/{box.id}/{save_location}/{file_path}",
-                                  f"{directory}/{file}", #DATA/<box.id>/<param>/day/hr/file_basename
+                                  f"{directory}/{file}",
                                   options=options)
         self.clean_root_dir()
 
@@ -211,7 +211,7 @@ class GoesDownloaderIndividualBboxDate(Downloader):
                     if file.endswith('.nc'):
                         layer = gdal.Open("NETCDF:{0}:{1}".format(f"{directory}/{file}", band))
                         options = gdal.TranslateOptions(format="GTiff")
-                        file_name = self.filename(file.replace('.nc', '.tif'))
+                        file_name = file.replace('.nc', '.tif')
 
                         gdal.Translate(f"{directory}/{file_name}", layer, options=options)
                         os.remove(f"{directory}/{file}")
@@ -221,10 +221,46 @@ class GoesDownloaderIndividualBboxDate(Downloader):
             # TODO- Use cloud masks (present in args.save/cloud_mask) on these images and perform interpolation to fill no data values
             pass
 
-    def crop_images_for_bboxs(self, param):
+    def crop_images_for_bboxs(self, param, save_location):
        if param != 'ABI-L2-ACMC':
-            # TODO- Crop images
-            pass
+            
+            OutSR = osr.SpatialReference()
+            OutSR.SetFromUserInput("ESRI:102498")
+            base_dir = os.path.join(self.root_dir, self.tmp_dir)
+
+            for box in self.boxes:
+
+                save_location_path = os.path.join(self.root_dir, box.id, save_location)
+                if not os.path.exists(save_location_path):
+                    os.mkdir(save_location_path)
+
+                start_date_in_year = (box.start - datetime(self.start.year, 1, 1)).days + 1
+                end_date_in_year = (box.end - datetime(self.start.year, 1, 1)).days + 1
+
+                for day in range(start_date_in_year, end_date_in_year + 1):
+                    hours = [i for i in range(0, 24)]
+                    if day == start_date_in_year:
+                        start_hour = box.start.hour
+                        hours = list(filter(lambda e: e > start_hour, hours))
+                    elif day == end_date_in_year:
+                        end_hour = box.end.hour
+                        hours = list(filter(lambda e: e < end_hour, hours))
+
+                    for hour in hours:
+                        directory = os.path.join(base_dir, str(day), str(hour))
+
+                        for file in os.listdir(directory):
+
+                            options = gdal.WarpOptions(format="GTiff",
+                                                   srcSRS=OutSR,
+                                                   dstSRS='EPSG:3857',
+                                                   cutlineDSName=f"{box.path}",
+                                                   cropToCutline=True)
+
+                            gdal.Warp(os.path.join(save_location_path, file),
+                                      os.path.join(directory, file),
+                                      options=options)
+
 
 if __name__ == "__main__":
     down = GoesDownloaderDate("/tmp/DATA", datetime(2023, 9, 30), datetime(2023, 10, 2))

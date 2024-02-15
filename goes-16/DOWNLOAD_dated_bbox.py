@@ -19,6 +19,7 @@ if __name__ == '__main__':
         # Removing older downloaded data
         down.clean_root_dir(args.param)
 
+        # Download files b/w the extremeties of bboxes
         down.download(down.start, down.end, args.param)
         logging.info("Finished downloading")
     except Exception as e:

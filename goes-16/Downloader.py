@@ -100,7 +100,7 @@ class Downloader:
 
     def filename(self, file):
         par = self.parse_filename(file.replace(".tif", ""))
-        file_path = f"{par['start_time'].year}{str(par['start_time'].month).zfill(2)}{str(par['start_time'].day).zfill(2)}T{str(par['start_time'].hour).zfill(2)}{str(par['start_time'].minute).zfill(2)}{str(par['start_time'].second).zfill(2)}{str(par['start_time'].microsecond).zfill(3)}Z.tif"
+        file_path = f"{par['channel']}_{par['start_time'].year}{str(par['start_time'].month).zfill(2)}{str(par['start_time'].day).zfill(2)}T{str(par['start_time'].hour).zfill(2)}{str(par['start_time'].minute).zfill(2)}{str(par['start_time'].second).zfill(2)}{str(par['start_time'].microsecond).zfill(3)}Z.tif"
         return file_path
 
     def download(self, start:datetime, end:datetime, param:str, latest:bool=False):
