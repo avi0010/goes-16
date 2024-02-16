@@ -200,6 +200,3 @@ class Downloader:
                     source = os.path.join(hour_download_dir, file)
                     dst = os.path.join(hour_download_dir, self.filename(file).replace('.tif', '.nc'))
                     os.rename(source, dst)
-    
-                break
-            break
