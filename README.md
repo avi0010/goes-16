@@ -73,5 +73,5 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/PRE
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/DOWNLOAD_dated_bbox.py -s /app/DATA/ -p ABI-L1b-RadC
 
 # Preprocess downloaded images, uses 'Rad' band (.nc to .tif conversion & cropping)
-$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/PREPROCESS_images_bbox.py -s /app/DATA/ -p ABI-L1b-RadC -b Rad
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/PREPROCESS_images_bbox.py -s /app/DATA/ -p ABI-L1b-RadC -b Rad -f radiance
 ```

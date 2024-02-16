@@ -248,6 +248,9 @@ class GoesDownloaderIndividualBboxDate(Downloader):
 
                     for hour in hours:
                         directory = os.path.join(base_dir, str(day), str(hour))
+                        if not os.path.exists(directory):
+                            logging.warning(f"Directory- {directory} not found. Check if download script ran properly")
+                            continue
 
                         for file in os.listdir(directory):
 

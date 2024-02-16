@@ -17,7 +17,7 @@ if __name__ == '__main__':
         logging.info(f"Starting pre-processing of downloaded images")
 
         down = GoesDownloaderIndividualBboxDate(args.save)
-        #down.pre_processing(args.param, args.band)
+        down.pre_processing(args.param, args.band)
         down.crop_images_for_bboxs(args.param, args.save_folder)
         
         logging.info("Finished pre-processing")
