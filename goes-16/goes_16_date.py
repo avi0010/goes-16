@@ -221,6 +221,33 @@ class GoesDownloaderIndividualBboxDate(Downloader):
             # TODO- Use cloud masks (present in args.save/cloud_mask) on these images and perform interpolation to fill no data values
             pass
 
+    def crop_images_for_bboxs_one(self, param, save_location):
+       if param == 'ABI-L2-ACMC':
+           raise NotImplementedError
+
+       OutSR = osr.SpatialReference()
+       OutSR.SetFromUserInput("ESRI:102498")
+       base_dir = os.path.join(self.root_dir, self.tmp_dir)
+
+       for box in self.boxes:
+           save_location_path = os.path.join(self.root_dir, box.id, save_location)
+           if not os.path.exists(save_location_path):
+               os.mkdir(save_location_path)
+
+           for day in os.listdir(f"{self.root_dir}/{self.tmp_dir}"):
+               for hour in os.listdir(f"{self.root_dir}/{self.tmp_dir}/{day}"):
+                  directory = os.path.join(base_dir, str(day), str(hour))
+                  for file in os.listdir(directory):
+                    options = gdal.WarpOptions(format="GTiff",
+                                           srcSRS=OutSR,
+                                           dstSRS='EPSG:3857',
+                                           cutlineDSName=f"{box.path}",
+                                           cropToCutline=True)
+
+                    gdal.Warp(os.path.join(save_location_path, file),
+                              os.path.join(directory, file),
+                              options=options)
+
     def crop_images_for_bboxs(self, param, save_location):
        if param != 'ABI-L2-ACMC':
             
