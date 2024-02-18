@@ -56,7 +56,7 @@ class GoesDownloaderLatest(Downloader):
                     
                 options = gdal.WarpOptions(format="GTiff",
                                            srcSRS=OutSR,
-                                           dstSRS='EPSG:3857',
+                                           dstSRS='EPSG:4326',
                                            cutlineDSName=f"{box.path}",
                                            cropToCutline=True)
 
@@ -141,7 +141,7 @@ class GoesDownloaderLatest(Downloader):
                     
                 options = gdal.WarpOptions(format="GTiff",
                                            srcSRS=OutSR,
-                                           dstSRS='EPSG:3857',
+                                           dstSRS='EPSG:4326',
                                            cutlineDSName=f"{box.path}",
                                            cropToCutline=True)
 

@@ -67,7 +67,7 @@ class GoesDownloaderDate(Downloader):
 
                         options = gdal.WarpOptions(format="GTiff",
                                                    srcSRS=OutSR,
-                                                   dstSRS='EPSG:3857',
+                                                   dstSRS='EPSG:4326',
                                                    cutlineDSName=f"{box.path}",
                                                    cropToCutline=True)
 
@@ -175,7 +175,7 @@ class GoesDownloaderDate(Downloader):
 
                         options = gdal.WarpOptions(format="GTiff",
                                                    srcSRS=OutSR,
-                                                   dstSRS='EPSG:3857',
+                                                   dstSRS='EPSG:4326',
                                                    cutlineDSName=f"{box.path}",
                                                    cropToCutline=True)
 
@@ -240,7 +240,7 @@ class GoesDownloaderIndividualBboxDate(Downloader):
                   for file in os.listdir(directory):
                     options = gdal.WarpOptions(format="GTiff",
                                            srcSRS=OutSR,
-                                           dstSRS='EPSG:3857',
+                                           dstSRS='EPSG:4326',
                                            cutlineDSName=f"{box.path}",
                                            cropToCutline=True)
 
@@ -283,7 +283,7 @@ class GoesDownloaderIndividualBboxDate(Downloader):
 
                             options = gdal.WarpOptions(format="GTiff",
                                                    srcSRS=OutSR,
-                                                   dstSRS='EPSG:3857',
+                                                   dstSRS='EPSG:4326',
                                                    cutlineDSName=f"{box.path}",
                                                    cropToCutline=True)
 
