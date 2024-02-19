@@ -1,5 +1,5 @@
 import numpy as np
-from osgeo import ogr, gdal 
+from osgeo import ogr, gdal, osr
 from PIL import Image
 from datetime import datetime
 import os
@@ -82,8 +82,6 @@ class InputFeatures:
                 fireDisoveryDateTime = self.parse_datetime(fireDisoveryDateTime)
                 fireControlDateTime = self.parse_datetime(fireControlDateTime)
 
-                print(fireDisoveryDateTime, fireControlDateTime, int(box))
-
                 if date > fireDisoveryDateTime and date < fireControlDateTime:
                     geom = ogr.CreateGeometryFromJson(json.dumps(poly['geometry']))
                     if geom.GetGeometryName() == 'MULTIPOLYGON':
@@ -104,7 +102,9 @@ class InputFeatures:
 
         mem_driver = ogr.GetDriverByName('Memory')
         mem_ds = mem_driver.CreateDataSource('mem_data_source')
-        mem_layer = mem_ds.CreateLayer('multipolygon', geom_type=ogr.wkbMultiPolygon)
+        InSR = osr.SpatialReference()
+        InSR.SetFromUserInput("EPSG:4326")
+        mem_layer = mem_ds.CreateLayer('multipolygon', geom_type=ogr.wkbMultiPolygon, srs=InSR)
         feature_defn = mem_layer.GetLayerDefn()
         feature = ogr.Feature(feature_defn)
         feature.SetGeometry(multipolygon)
