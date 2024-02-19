@@ -242,6 +242,7 @@ class GoesDownloaderIndividualBboxDate(Downloader):
                                            srcSRS=OutSR,
                                            dstSRS='EPSG:4326',
                                            cutlineDSName=f"{box.path}",
+                                           copyMetadata= True,
                                            cropToCutline=True)
 
                     gdal.Warp(os.path.join(save_location_path, file),

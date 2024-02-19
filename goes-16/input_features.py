@@ -1,7 +1,9 @@
 import numpy as np
+from osgeo import ogr, gdal 
 from PIL import Image
 from datetime import datetime
 import os
+import json
 
 class TiffFile:
     def __init__(self) -> None:
@@ -47,7 +49,6 @@ class InputFeatures:
         self.features = {}
         for box in self.days:
             self.features[box] = os.listdir(f"{save_dir}/{box}/")[0]
-        print(self.features)
 
     def get_file(self, file_list: list[str], band_id):
         for file in file_list:
@@ -55,6 +56,66 @@ class InputFeatures:
            if f.band == band_id:
                return file
 
+    def parse_datetime(self, date):
+        # 2024-01-03T17:39:21Z
+        year = int(date[0:4])
+        month = int(date[5:7])
+        day = int(date[8:10])
+        hour = int(date[11:13])
+        minutes = int(date[14:16])
+        sec = int(date[17:19])
+
+        return datetime(year=year, month=month, day=day, hour=hour, minute=minutes, second=sec, microsecond=0)
+
+    def save_output(self, box, image_path, date):
+        
+        with open("./files/NIFC_2023_Wildfire_Perimeters.json") as f:
+            geojson_data = json.load(f)
+
+        multipolygon = ogr.Geometry(ogr.wkbMultiPolygon)
+        for poly in geojson_data["features"]:
+            if poly["properties"]["poly_SourceOID"] == int(box):
+                properties = poly["properties"]
+                fireDisoveryDateTime = properties['attr_FireDiscoveryDateTime'] if properties['attr_FireDiscoveryDateTime'] is not None else properties['poly_CreateDate']
+                fireControlDateTime = properties['attr_ContainmentDateTime'] if properties['attr_ContainmentDateTime'] is not None else properties['attr_ModifiedOnDateTime_dt']
+
+                fireDisoveryDateTime = self.parse_datetime(fireDisoveryDateTime)
+                fireControlDateTime = self.parse_datetime(fireControlDateTime)
+
+                print(fireDisoveryDateTime, fireControlDateTime, int(box))
+
+                if date > fireDisoveryDateTime and date < fireControlDateTime:
+                    geom = ogr.CreateGeometryFromJson(json.dumps(poly['geometry']))
+                    if geom.GetGeometryName() == 'MULTIPOLYGON':
+                        for i in range(geom.GetGeometryCount()):
+                            multipolygon.AddGeometry(geom.GetGeometryRef(i))
+                    elif geom.GetGeometryName() == 'POLYGON':
+                        multipolygon.AddGeometry(geom)
+
+        raster_layer = gdal.Open(image_path)
+        cols = raster_layer.RasterXSize
+        rows = raster_layer.RasterYSize
+        projection = raster_layer.GetProjection()
+        geotransform = raster_layer.GetGeoTransform()
+
+        target_layer = gdal.GetDriverByName('MEM').Create('', cols, rows, 1, gdal.GDT_Byte)
+        target_layer.SetProjection(projection)
+        target_layer.SetGeoTransform(geotransform)
+
+        mem_driver = ogr.GetDriverByName('Memory')
+        mem_ds = mem_driver.CreateDataSource('mem_data_source')
+        mem_layer = mem_ds.CreateLayer('multipolygon', geom_type=ogr.wkbMultiPolygon)
+        feature_defn = mem_layer.GetLayerDefn()
+        feature = ogr.Feature(feature_defn)
+        feature.SetGeometry(multipolygon)
+        mem_layer.CreateFeature(feature)
+
+        gdal.RasterizeLayer(target_layer, [1], mem_layer, burn_values=[1], options=['ALL_TOUCHED=TRUE'])
+
+        output_file = f"{self.save_dir}/{box}/{str(date)}/output.tif"
+        gdal.Translate(output_file, target_layer, format='GTiff')
+        return
+           
     def get_features(self):
         for box, feature in self.features.items():
             time_file_dict = {}
@@ -72,7 +133,9 @@ class InputFeatures:
                     base_dir = f"{self.save_dir}/{box}/{feature}/"
                     if len(layer) == 1:
                         f = self.get_file(files, 3)
-                        im = Image.open(os.path.join(base_dir, f))
+                        image_path = os.path.join(base_dir, f)
+                        self.save_output(box, image_path, date)
+                        im = Image.open(image_path)
                         im = im.resize((128, 128))
                         imarray = np.array(im)
                         im = Image.fromarray(imarray)
