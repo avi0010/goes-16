@@ -38,11 +38,11 @@ class TiffFile:
 
 class InputFeatures:
     def __init__(self, save_dir) -> None:
-        self.layers=[[3],
-                     [3, 12],
-                     [3, 13],
-                     [3, 14],
-                     [3, 15]]
+        self.layers=[[7],
+                     [7, 12],
+                     [7, 13],
+                     [7, 14],
+                     [7, 15]]
 
         self.save_dir = save_dir
         self.days = [int(i) for i in os.listdir(f"{save_dir}") if i != "tmp"]
