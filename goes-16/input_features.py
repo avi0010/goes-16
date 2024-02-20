@@ -136,7 +136,7 @@ class InputFeatures:
                         image_path = os.path.join(base_dir, f)
                         self.save_output(box, image_path, date)
                         im = Image.open(image_path)
-                        im = im.resize((128, 128))
+                        im = im.resize((64, 64))
                         imarray = np.array(im)
                         im = Image.fromarray(imarray)
                         im.save(f"{self.save_dir}/{box}/{str(date)}/b_{i}.tiff")
@@ -144,13 +144,13 @@ class InputFeatures:
                     else:
                         f1 = self.get_file(files, layer[0])
                         im1 = Image.open(os.path.join(base_dir, f1))
-                        im1 = im1.resize((128, 128))
+                        im1 = im1.resize((64, 64))
                         imarray1 = np.array(im1)
 
 
                         f2 = self.get_file(files, layer[1])
                         im2 = Image.open(os.path.join(base_dir, f2))
-                        im2 = im2.resize((128, 128))
+                        im2 = im2.resize((64, 64))
                         imarray2 = np.array(im2)
 
                         diff = imarray1 - imarray2

@@ -60,7 +60,7 @@ Generates bbox using json file
 ```bash
 
 # Generate bounding boxes
-$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/bbox_generator_1.py -f files/NIFC_2023_Wildfire_Perimeters.json
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/new_bbox.py -f files/NIFC_2023_Wildfire_Perimeters.json
 
 # Download cloud images for entire US
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/DOWNLOAD_dated_bbox.py -s /app/DATA/ -p ABI-L2-ACMC
