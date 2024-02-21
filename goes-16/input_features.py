@@ -1,7 +1,9 @@
 import numpy as np
 from osgeo import ogr, gdal, osr
 from PIL import Image
-from datetime import datetime
+from datetime import datetime, timedelta
+from bbox import Bboxs
+import s3fs
 import os
 import json
 
@@ -35,6 +37,105 @@ class TiffFile:
                              microsecond=int(microseconds))
         cls.date = date_time
         return cls
+
+class PastFeatures:
+    def __init__(self, save_dir, box, date:datetime) -> None:
+        self.fs = s3fs.S3FileSystem(anon=True)
+        self.past = 15
+        self.dir_name = "past"
+        self.date = date
+        self.box = box
+        self.boxes = Bboxs.read_file(False).boxes
+        self.save_dir = save_dir
+        self.tmp_dir = "./tmp"
+        os.mkdir(self.tmp_dir)
+        self.tmp_dir_past = f"{self.tmp_dir}/{self.dir_name}"
+        self.save_dir_cropped = f"{self.tmp_dir}/crop"
+        os.mkdir(self.tmp_dir_past)
+        os.mkdir(self.save_dir_cropped)
+        for box in self.boxes:
+            if int(box.id) == int(self.box):
+                self.box_path = box.path
+
+    def parse_filename(self, filename: str):
+        if filename.startswith("OR_"):
+            filename = filename[3:] 
+
+        parts = filename.split('_')
+        if len(parts) != 5:
+            raise ValueError(f"Invalid filename format")
+
+        start_time = parts[2][1:]
+        start_dt = datetime.strptime(start_time, "%Y%j%H%M%S%f")
+        channel = int(parts[0][-2:])
+
+        return start_dt, channel
+
+    def process(self):
+        self.download()
+        self.convert_to_tif()
+        self.crop_file()
+        arr = []
+        for f in os.listdir(self.save_dir_cropped):
+            im = Image.open(f"{self.save_dir_cropped}/{f}")
+            os.remove(os.path.join(self.save_dir_cropped, f))
+            im = im.resize((64, 64))
+            im_array = np.asarray(im)
+            arr.append(im_array.tolist())
+
+        result = np.array(arr).mean(axis=0)
+        im = Image.fromarray(result)
+        im.save(f"{self.save_dir}/{self.box}/{str(self.date)}/b_{5}.tiff")
+        os.rmdir(self.save_dir_cropped)
+        os.rmdir(self.tmp_dir)
+
+    def crop_file(self) -> None:
+        OutSR = osr.SpatialReference()
+        OutSR.SetFromUserInput("ESRI:102498")
+        for file in os.listdir(self.tmp_dir_past):
+            options = gdal.WarpOptions(format="GTiff",
+                                   srcSRS=OutSR,
+                                   dstSRS='EPSG:4326',
+                                   cutlineDSName=f"{self.box_path}",
+                                   copyMetadata= True,
+                                   cropToCutline=True)
+
+            gdal.Warp(os.path.join(self.save_dir_cropped, file),
+                      os.path.join(self.tmp_dir_past, file),
+                      options=options)
+
+            os.remove(os.path.join(self.tmp_dir_past, file))
+
+        os.rmdir(self.tmp_dir_past)
+
+    def convert_to_tif(self, band="Rad") -> None:
+        for file in os.listdir(self.tmp_dir_past):
+            if file.endswith('.nc'):
+                layer = gdal.Open("NETCDF:{0}:{1}".format(f"{self.tmp_dir_past}/{file}", band))
+                options = gdal.TranslateOptions(format="GTiff")
+                file_name = file.replace('.nc', '.tif')
+
+                gdal.Translate(f"{self.tmp_dir_past}/{file_name}", layer, options=options)
+                os.remove(f"{self.tmp_dir_past}/{file}")
+
+    def download(self) -> None:
+        if self.date.month == 1 and self.date.day <= self.past:
+            start_date_in_year = datetime(self.date.year, 1, 1).day
+        else:
+            start_date_in_year = ((datetime(self.date.year, self.date.month, self.date.day) - timedelta(days=self.past)) - datetime(self.date.year, 1, 1)).days + 1
+
+        end_date_in_year = (datetime(self.date.year, self.date.month, self.date.day) - datetime(self.date.year, 1, 1)).days + 1
+        past_files = []
+        for day in range(start_date_in_year, end_date_in_year):
+            day_str = str(day).zfill(3)
+            temp = f"s3://noaa-goes16/ABI-L1b-RadC/{self.date.year}/{day_str}/{str(self.date.hour).zfill(2)}"
+            hour_files = self.fs.ls(temp)
+            for file in hour_files:
+                file_data, ch = self.parse_filename(file.split("/")[-1])
+                if file_data.minute == self.date.minute and ch == 7:
+                    past_files.append(file)
+
+        self.fs.get(past_files, self.tmp_dir_past)
 
 class InputFeatures:
     def __init__(self, save_dir) -> None:
@@ -129,6 +230,8 @@ class InputFeatures:
 
             for date, files in time_file_dict.items():
                 os.mkdir(f"{self.save_dir}/{box}/{str(date)}")
+                past= PastFeatures(self.save_dir, box, date)
+                past.process()
                 for i, layer in enumerate(self.layers):
                     base_dir = f"{self.save_dir}/{box}/{feature}/"
                     if len(layer) == 1:
