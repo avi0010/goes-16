@@ -176,20 +176,12 @@ class InputFeatures:
         multipolygon = ogr.Geometry(ogr.wkbMultiPolygon)
         for poly in geojson_data["features"]:
             if poly["properties"]["poly_SourceOID"] == int(box):
-                properties = poly["properties"]
-                fireDisoveryDateTime = properties['attr_FireDiscoveryDateTime'] if properties['attr_FireDiscoveryDateTime'] is not None else properties['poly_CreateDate']
-                fireControlDateTime = properties['attr_ContainmentDateTime'] if properties['attr_ContainmentDateTime'] is not None else properties['attr_ModifiedOnDateTime_dt']
-
-                fireDisoveryDateTime = self.parse_datetime(fireDisoveryDateTime)
-                fireControlDateTime = self.parse_datetime(fireControlDateTime)
-
-                if date > fireDisoveryDateTime and date < fireControlDateTime:
-                    geom = ogr.CreateGeometryFromJson(json.dumps(poly['geometry']))
-                    if geom.GetGeometryName() == 'MULTIPOLYGON':
-                        for i in range(geom.GetGeometryCount()):
-                            multipolygon.AddGeometry(geom.GetGeometryRef(i))
-                    elif geom.GetGeometryName() == 'POLYGON':
-                        multipolygon.AddGeometry(geom)
+                geom = ogr.CreateGeometryFromJson(json.dumps(poly['geometry']))
+                if geom.GetGeometryName() == 'MULTIPOLYGON':
+                    for i in range(geom.GetGeometryCount()):
+                        multipolygon.AddGeometry(geom.GetGeometryRef(i))
+                elif geom.GetGeometryName() == 'POLYGON':
+                    multipolygon.AddGeometry(geom)
 
         raster_layer = gdal.Open(image_path)
         cols = raster_layer.RasterXSize
@@ -219,6 +211,18 @@ class InputFeatures:
            
     def get_features(self):
         for box, feature in self.features.items():
+            with open("./files/NIFC_2023_Wildfire_Perimeters.json") as f:
+                geojson_data = json.load(f)
+
+            for poly in geojson_data["features"]:
+                if poly["properties"]["poly_SourceOID"] == int(box):
+                    properties = poly["properties"]
+                    fireDisoveryDateTime = properties['attr_FireDiscoveryDateTime'] if properties['attr_FireDiscoveryDateTime'] is not None else properties['poly_CreateDate']
+                    fireControlDateTime = properties['attr_ContainmentDateTime'] if properties['attr_ContainmentDateTime'] is not None else properties['attr_ModifiedOnDateTime_dt']
+
+                    fireDisoveryDateTime = self.parse_datetime(fireDisoveryDateTime)
+                    fireControlDateTime = self.parse_datetime(fireControlDateTime)
+            
             time_file_dict = {}
             for file in os.listdir(f"{self.save_dir}/{box}/{feature}"):
                f = TiffFile.parse(file)
@@ -229,6 +233,8 @@ class InputFeatures:
                 time_file_dict[f.date].append(f.file_name)
 
             for date, files in time_file_dict.items():
+                if date < fireDisoveryDateTime or date > fireControlDateTime:
+                    return
                 os.mkdir(f"{self.save_dir}/{box}/{str(date)}")
                 past= PastFeatures(self.save_dir, box, date)
                 past.process()
