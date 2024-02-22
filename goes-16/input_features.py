@@ -77,14 +77,15 @@ class PastFeatures:
         self.crop_file()
         arr = []
         for f in os.listdir(self.save_dir_cropped):
-            im = Image.open(f"{self.save_dir_cropped}/{f}")
+            img = gdal.Open(f"{self.save_dir_cropped}/{f}")
+            band = np.array(img.GetRasterBand(1).ReadAsArray())
+            band = np.where(band < np.percentile(band, 99.8), band, 0)
+            arr.append(band.tolist())
             os.remove(os.path.join(self.save_dir_cropped, f))
-            im = im.resize((64, 64))
-            im_array = np.asarray(im)
-            arr.append(im_array.tolist())
 
         result = np.array(arr).mean(axis=0)
         im = Image.fromarray(result)
+        im = im.resize((64, 64))
         im.save(f"{self.save_dir}/{self.box}/{str(self.date)}/b_{5}.tiff")
         os.rmdir(self.save_dir_cropped)
         os.rmdir(self.tmp_dir)
@@ -241,29 +242,31 @@ class InputFeatures:
                 for i, layer in enumerate(self.layers):
                     base_dir = f"{self.save_dir}/{box}/{feature}/"
                     if len(layer) == 1:
-                        f = self.get_file(files, 3)
+                        f = self.get_file(files, layer[0])
                         image_path = os.path.join(base_dir, f)
                         self.save_output(box, image_path, date)
-                        im = Image.open(image_path)
+                        img = gdal.Open(image_path)
+                        band = np.array(img.GetRasterBand(1).ReadAsArray())
+                        band = np.where(band < np.percentile(band, 99.8), band, 0)
+                        im = Image.fromarray(band)
                         im = im.resize((64, 64))
-                        imarray = np.array(im)
-                        im = Image.fromarray(imarray)
                         im.save(f"{self.save_dir}/{box}/{str(date)}/b_{i}.tiff")
 
                     else:
                         f1 = self.get_file(files, layer[0])
-                        im1 = Image.open(os.path.join(base_dir, f1))
-                        im1 = im1.resize((64, 64))
-                        imarray1 = np.array(im1)
+                        img1 = gdal.Open(os.path.join(base_dir, f1))
+                        band1 = np.array(img1.GetRasterBand(1).ReadAsArray())
+                        band1 = np.where(band1 < np.percentile(band1, 99.8), band1, 0)
 
 
                         f2 = self.get_file(files, layer[1])
-                        im2 = Image.open(os.path.join(base_dir, f2))
-                        im2 = im2.resize((64, 64))
-                        imarray2 = np.array(im2)
+                        img2 = gdal.Open(os.path.join(base_dir, f2))
+                        band2 = np.array(img2.GetRasterBand(1).ReadAsArray())
+                        band2 = np.where(band2 < np.percentile(band2, 99.8), band2, 0)
 
-                        diff = imarray1 - imarray2
+                        diff = band1 - band2 
                         im = Image.fromarray(diff)
+                        im = im.resize((64, 64))
                         im.save(f"{self.save_dir}/{box}/{str(date)}/b_{i}.tiff")
 
 
