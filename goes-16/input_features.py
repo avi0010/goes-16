@@ -79,11 +79,12 @@ class PastFeatures:
         for f in os.listdir(self.save_dir_cropped):
             img = gdal.Open(f"{self.save_dir_cropped}/{f}")
             band = np.array(img.GetRasterBand(1).ReadAsArray())
-            band = np.where(band < np.percentile(band, 99.8), band, 0)
+            band = np.where(band < np.percentile(band, 99), band, 0)
+            band = np.where(band > np.percentile(band, 1), band, 0)
             arr.append(band.tolist())
             os.remove(os.path.join(self.save_dir_cropped, f))
 
-        result = np.array(arr).mean(axis=0)
+        result = np.array(arr).mean(axis=0).astype(np.uint8)
         im = Image.fromarray(result)
         im = im.resize((64, 64))
         im.save(f"{self.save_dir}/{self.box}/{str(self.date)}/b_{5}.tiff")
