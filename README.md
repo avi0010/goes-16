@@ -57,16 +57,20 @@ docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/bbox_generat
 Generates bbox using json file
 
 ### Decoupled scripts
+**Downloading cloud cover images**
 ```bash
-
-# Generate bounding boxes
-$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/new_bbox.py -f files/NIFC_2023_Wildfire_Perimeters.json
-
 # Download cloud images for entire US
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/DOWNLOAD_dated_bbox.py -s /app/DATA/ -p ABI-L2-ACMC
 
 # Preprocess download cloud images (.nc to .tif conversion)
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/PREPROCESS_images_bbox.py -s /app/DATA/ -p ABI-L2-ACMC -b ACM
+```
+
+**Downloading and processing training images**
+```bash
+
+# Generate bounding boxes
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/new_bbox.py -f files/NIFC_2023_Wildfire_Perimeters.json
 
 # Now download specific product images for entire US. In this example, we are taking ABI-L1b-RadC product
 # Since this product will have 12 bands, filename will be prefixed with channel numbers, such as C04 or C12 etc.

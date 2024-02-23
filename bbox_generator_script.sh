@@ -1,1 +1,0 @@
-sudo docker run --rm  -v "/home/xecro/Downloads/Workspace/Octaflyte/goes-16:/app" goes_downloader:stable python3 goes-16/bbox_generator.py -s DATA/ date -d 2023-09-01 2023-10-02
