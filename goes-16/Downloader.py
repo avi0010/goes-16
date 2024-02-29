@@ -26,6 +26,7 @@ class Downloader:
         self.max_retries = 3
         self.tmp_dir = "tmp"
         self.json_file = "cloud.json"
+        self.layers = [7, 12, 13, 14, 15]
 
         if read_bbox_datetime:
             self.hour_freq = None # Since we are downloading all available images in an hour
@@ -65,8 +66,8 @@ class Downloader:
         for box in self.boxes:
             box_arr = []
             for point in box.box:
-                p = self.point_coversion(point)
-                box_arr.append(p)
+                # p = self.point_coversion(point)
+                box_arr.append(point)
             boxes.append(Bbox(box_arr, box.id, box.path, box.start, box.end))
         self.boxes = Bboxs(boxes).boxes
 
@@ -173,6 +174,7 @@ class Downloader:
                 hour_download_dir = os.path.join(day_download_dir, str(hr))
                 os.mkdir(hour_download_dir)
                 files = self.fs.ls(f"s3://noaa-goes16/{param}/{start.year}/{day_str}/{str(hr).zfill(2)}/")
+                files = list(filter(lambda x: int(self.parse_filename(x.split("/")[-1])["channel"][1:]) in self.layers, files))
                 logging.info(f"Downloading files for {day}:{hr}")
 
                 retries = 0
