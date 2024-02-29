@@ -1,9 +1,11 @@
+from collections import defaultdict
 import numpy as np
 from osgeo import ogr, gdal, osr
 from PIL import Image
 from datetime import datetime, timedelta
-from bbox import Bboxs
+from bbox import Bboxs, Bbox
 import s3fs
+import random
 import os
 import json
 
@@ -141,43 +143,34 @@ class PastFeatures:
 
 class InputFeatures:
     def __init__(self, save_dir) -> None:
-        self.layers=[[7],
-                     [7, 12],
+        self.layers=[[7, 12],
                      [7, 13],
                      [7, 14],
                      [7, 15]]
 
+        self.input_layers = [7, 12, 13, 14, 15]
+        self.boxes = Bboxs.read_file(True).boxes
         self.save_dir = save_dir
-        self.days = [int(i) for i in os.listdir(f"{save_dir}") if i != "tmp"]
-        self.features = {}
-        for box in self.days:
-            self.features[box] = os.listdir(f"{save_dir}/{box}/")[0]
-
-    def get_file(self, file_list: list[str], band_id):
-        for file in file_list:
-           f = TiffFile.parse(file)
-           if f.band == band_id:
-               return file
-
-    def parse_datetime(self, date):
-        # 2024-01-03T17:39:21Z
-        year = int(date[0:4])
-        month = int(date[5:7])
-        day = int(date[8:10])
-        hour = int(date[11:13])
-        minutes = int(date[14:16])
-        sec = int(date[17:19])
-
-        return datetime(year=year, month=month, day=day, hour=hour, minute=minutes, second=sec, microsecond=0)
-
-    def save_output(self, box, image_path, date):
+        self.tmp_dir = "tmp"
+        self.datetime_images = defaultdict(list)
         
-        with open("./files/NIFC_2023_Wildfire_Perimeters.json") as f:
-            geojson_data = json.load(f)
+        for day in os.listdir(f"{self.save_dir}/{self.tmp_dir}"):
+            for hour in os.listdir(f"{self.save_dir}/{self.tmp_dir}/{day}"):
+               directory = os.path.join(self.save_dir, self.tmp_dir, str(day), str(hour))
+               for file in os.listdir(directory):
+                   tif_file = TiffFile.parse(file)
+                   if tif_file.band in self.input_layers:
+                       self.datetime_images[tif_file.date].append(file)
 
+        for box in self.boxes:
+            for date in self.datetime_images.keys():
+                if box.start < date and date < box.end:
+                    os.mkdir(f"{self.save_dir}/{box.id}/{str(date)}")
+
+    def create_polygon(self, geojson_data, box:Bbox):
         multipolygon = ogr.Geometry(ogr.wkbMultiPolygon)
         for poly in geojson_data["features"]:
-            if poly["properties"]["poly_SourceOID"] == int(box):
+            if poly["properties"]["poly_SourceOID"] == int(box.id):
                 geom = ogr.CreateGeometryFromJson(json.dumps(poly['geometry']))
                 if geom.GetGeometryName() == 'MULTIPOLYGON':
                     for i in range(geom.GetGeometryCount()):
@@ -185,92 +178,126 @@ class InputFeatures:
                 elif geom.GetGeometryName() == 'POLYGON':
                     multipolygon.AddGeometry(geom)
 
-        raster_layer = gdal.Open(image_path)
-        cols = raster_layer.RasterXSize
-        rows = raster_layer.RasterYSize
-        projection = raster_layer.GetProjection()
-        geotransform = raster_layer.GetGeoTransform()
-
-        target_layer = gdal.GetDriverByName('MEM').Create('', cols, rows, 1, gdal.GDT_Byte)
-        target_layer.SetProjection(projection)
-        target_layer.SetGeoTransform(geotransform)
-
-        mem_driver = ogr.GetDriverByName('Memory')
-        mem_ds = mem_driver.CreateDataSource('mem_data_source')
-        InSR = osr.SpatialReference()
-        InSR.SetFromUserInput("EPSG:4326")
-        mem_layer = mem_ds.CreateLayer('multipolygon', geom_type=ogr.wkbMultiPolygon, srs=InSR)
-        feature_defn = mem_layer.GetLayerDefn()
-        feature = ogr.Feature(feature_defn)
-        feature.SetGeometry(multipolygon)
-        mem_layer.CreateFeature(feature)
-
-        gdal.RasterizeLayer(target_layer, [1], mem_layer, burn_values=[1], options=['ALL_TOUCHED=TRUE'])
-
-        output_file = f"{self.save_dir}/{box}/{str(date)}/output.tif"
-        gdal.Translate(output_file, target_layer, format='GTiff')
-        return
-           
-    def get_features(self):
-        for box, feature in self.features.items():
-            with open("./files/NIFC_2023_Wildfire_Perimeters.json") as f:
-                geojson_data = json.load(f)
-
-            for poly in geojson_data["features"]:
-                if poly["properties"]["poly_SourceOID"] == int(box):
-                    properties = poly["properties"]
-                    fireDisoveryDateTime = properties['attr_FireDiscoveryDateTime'] if properties['attr_FireDiscoveryDateTime'] is not None else properties['poly_CreateDate']
-                    fireControlDateTime = properties['attr_ContainmentDateTime'] if properties['attr_ContainmentDateTime'] is not None else properties['attr_ModifiedOnDateTime_dt']
-
-                    fireDisoveryDateTime = self.parse_datetime(fireDisoveryDateTime)
-                    fireControlDateTime = self.parse_datetime(fireControlDateTime)
-            
-            time_file_dict = {}
-            for file in os.listdir(f"{self.save_dir}/{box}/{feature}"):
-               f = TiffFile.parse(file)
-               time_file_dict[f.date] = []
-
-            for file in os.listdir(f"{self.save_dir}/{box}/{feature}"):
-                f = TiffFile.parse(file)
-                time_file_dict[f.date].append(f.file_name)
-
-            for date, files in time_file_dict.items():
-                if date < fireDisoveryDateTime or date > fireControlDateTime:
-                    return
-                os.mkdir(f"{self.save_dir}/{box}/{str(date)}")
-                past= PastFeatures(self.save_dir, box, date)
-                past.process()
-                for i, layer in enumerate(self.layers):
-                    base_dir = f"{self.save_dir}/{box}/{feature}/"
-                    if len(layer) == 1:
-                        f = self.get_file(files, layer[0])
-                        image_path = os.path.join(base_dir, f)
-                        self.save_output(box, image_path, date)
-                        img = gdal.Open(image_path)
-                        band = np.array(img.GetRasterBand(1).ReadAsArray())
-                        band = np.where(band < np.percentile(band, 99.8), band, 0)
-                        im = Image.fromarray(band)
-                        im = im.resize((64, 64))
-                        im.save(f"{self.save_dir}/{box}/{str(date)}/b_{i}.tiff")
-
-                    else:
-                        f1 = self.get_file(files, layer[0])
-                        img1 = gdal.Open(os.path.join(base_dir, f1))
-                        band1 = np.array(img1.GetRasterBand(1).ReadAsArray())
-                        band1 = np.where(band1 < np.percentile(band1, 99.8), band1, 0)
+        return multipolygon
 
 
-                        f2 = self.get_file(files, layer[1])
-                        img2 = gdal.Open(os.path.join(base_dir, f2))
-                        band2 = np.array(img2.GetRasterBand(1).ReadAsArray())
-                        band2 = np.where(band2 < np.percentile(band2, 99.8), band2, 0)
+    def get_center_pixel(self, label_path, mask_value:int = 1):
+        ds = gdal.Open(label_path)
+        band = ds.GetRasterBand(1)
+        array = np.array(band.ReadAsArray())
 
-                        diff = band1 - band2 
-                        im = Image.fromarray(diff)
-                        im = im.resize((64, 64))
-                        im.save(f"{self.save_dir}/{box}/{str(date)}/b_{i}.tiff")
+        # Find indices where we have mass
+        mass_x, mass_y = np.where(array == mask_value)
+
+        # mass_x and mass_y are the list of x indices and y indices of mass pixels  
+        cent_x = np.average(mass_x)
+        cent_y = np.average(mass_y)
+
+        # Clean up
+        ds = None
+
+        return int(cent_x), int(cent_y)
+
+    def model_inputs(self):
+        for box in self.boxes:
+            for time_stamp in os.listdir(os.path.join(self.save_dir, str(box.id))):
+                parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
+
+                for idx, layer in enumerate(self.layers):
+                    layer1, layer2 = None, None
+                    for file in self.datetime_images[parsed_date]:
+                        tf = TiffFile.parse(file)
+                        directory = os.path.join(self.save_dir, str(box.id), time_stamp)
+                        if len(layer) == 1 and tf.band == 7:
+                            img = gdal.Open(os.path.join(directory, file))
+                            layer1 = np.array(img.GetRasterBand(1).ReadAsArray())
+                            im = Image.fromarray(layer1)
+                            save_location = os.path.join(self.save_dir, str(box.id), time_stamp, f"input_1.tif")
+                            continue
+
+                        if tf.band == layer[0]:
+                            img = gdal.Open(os.path.join(directory, file))
+                            layer1 = np.array(img.GetRasterBand(1).ReadAsArray())
+
+                        if tf.band == layer[1]:
+                            img = gdal.Open(os.path.join(directory, file))
+                            layer2 = np.array(img.GetRasterBand(1).ReadAsArray())
+
+                    
+                    band = layer1 - layer2
+                    im = Image.fromarray(band)
+                    save_location = os.path.join(self.save_dir, str(box.id), time_stamp, f"input_{idx + 1}.tif")
+                    im.save(save_location)
+
+
+    def input_features(self, img_size:int = 32):
+        for box in self.boxes:
+            for time_stamp in os.listdir(os.path.join(self.save_dir, str(box.id))):
+                parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
+                mask_file = os.path.join(self.save_dir, str(box.id), time_stamp, "output.tif")
+                centre_x, centre_y = self.get_center_pixel(mask_file)
+
+                # Finding offset by moving the center pixels to top-left according to image size
+                x_random = int(random.uniform(-1 * (img_size // 3), img_size // 3))
+                y_random = int(random.uniform(-1 * (img_size // 3), img_size // 3))
+                x_offset = centre_y - img_size // 2 + x_random
+                y_offset = centre_x - img_size // 2 + y_random
+
+                window = (x_offset, y_offset, img_size, img_size)
+
+                # Translate output.tif
+                gdal.Translate(mask_file.replace("tif", "tiff"), mask_file, srcWin=window)
+                os.remove(mask_file)
+
+
+                date_from_year_start = (parsed_date - datetime(year=parsed_date.year, month=1, day=1))
+                for file in self.datetime_images[parsed_date]:
+                    src_file = os.path.join(self.save_dir, self.tmp_dir, str(date_from_year_start.days + 1), str(parsed_date.hour), file)
+                    dst_file = os.path.join(self.save_dir, str(box.id), time_stamp, file)
+                    gdal.Translate(dst_file, src_file, srcWin=window)
+
+
+    def output_label(self):
+
+        with open("./files/reprojected_NIFC_2023_Wildfire_Perimeters.json") as f:
+            geojson_data = json.load(f)
+
+        for box in self.boxes:
+            for date in self.datetime_images.keys():
+                if box.start < date and date < box.end:
+
+                    multipolygon = self.create_polygon(geojson_data, box)
+                    image_name = self.datetime_images[date][0]
+                    date_from_year_start = (date - datetime(year=date.year, month=1, day=1)).days + 1
+                    reference_raster_path = os.path.join(self.save_dir, self.tmp_dir, str(date_from_year_start), str(date.hour), image_name)
+
+                    raster_layer = gdal.Open(reference_raster_path)
+                    cols = raster_layer.RasterXSize
+                    rows = raster_layer.RasterYSize
+                    projection = raster_layer.GetProjection()
+                    geotransform = raster_layer.GetGeoTransform()
+
+                    target_layer = gdal.GetDriverByName('MEM').Create('', cols, rows, 1, gdal.GDT_Byte)
+                    target_layer.SetProjection(projection)
+                    target_layer.SetGeoTransform(geotransform)
+
+                    mem_driver = ogr.GetDriverByName('Memory')
+                    mem_ds = mem_driver.CreateDataSource('mem_data_source')
+                    InSR = osr.SpatialReference()
+                    InSR.SetFromUserInput("ESRI:102498")
+                    mem_layer = mem_ds.CreateLayer('multipolygon', geom_type=ogr.wkbMultiPolygon, srs=InSR)
+                    feature_defn = mem_layer.GetLayerDefn()
+                    feature = ogr.Feature(feature_defn)
+                    feature.SetGeometry(multipolygon)
+                    mem_layer.CreateFeature(feature)
+
+                    gdal.RasterizeLayer(target_layer, [1], mem_layer, burn_values=[1], options=['ALL_TOUCHED=TRUE'])
+
+                    output_file = os.path.join(self.save_dir, str(box.id), str(date), "output.tif")
+                    gdal.Translate(output_file, target_layer, format='GTiff')
 
 
 if __name__ == "__main__":
     ip = InputFeatures("./DATA")
-    ip.get_features()
+    ip.output_label()
+    ip.input_features()
