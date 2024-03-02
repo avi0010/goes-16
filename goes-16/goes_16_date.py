@@ -10,6 +10,7 @@ from custom_layers import wildfire_area
 from osgeo import osr
 import logging
 from Downloader import Downloader
+from netCDF4 import Dataset
 
 logging.basicConfig(level=logging.INFO,
     format='%(asctime)s %(levelname)-8s %(message)s',
@@ -210,10 +211,37 @@ class GoesDownloaderIndividualBboxDate(Downloader):
 
                     if file.endswith('.nc'):
                         layer = gdal.Open("NETCDF:{0}:{1}".format(f"{directory}/{file}", band))
-                        options = gdal.TranslateOptions(format="GTiff")
+                        dataset = Dataset(f"{directory}/{file}",'r')
+
+                        # Get coefficients for calculation of brightness temperature
+                        planck_fk1 = dataset.variables['planck_fk1'][:]
+                        planck_fk2 = dataset.variables['planck_fk2'][:]
+                        planck_bc1 = dataset.variables['planck_bc1'][:]
+                        planck_bc2 = dataset.variables['planck_bc2'][:]
+
+                        # Read the radiance data
+                        rad = dataset.variables['Rad'][:]
+
+                        dataset.close()
+
+                        bt = ( (planck_fk2 / (np.log( (planck_fk1/rad)+1 ))) - planck_bc1 ) /  planck_bc2
+
                         file_name = file.replace('.nc', '.tif')
 
-                        gdal.Translate(f"{directory}/{file_name}", layer, options=options)
+                        driver = gdal.GetDriverByName("GTiff")
+                        output_dataset = driver.Create(f"{directory}/{file_name}", layer.RasterXSize, layer.RasterYSize, 1, gdal.GDT_Float32)
+
+                        # Copy geotransform and projection
+                        output_dataset.SetGeoTransform(layer.GetGeoTransform())
+                        output_dataset.SetProjection(layer.GetProjection())
+
+                        # Write the calculated data to the new GeoTIFF file
+                        output_dataset.GetRasterBand(1).WriteArray(bt)
+                        output_dataset.FlushCache()
+
+                        layer = None
+                        output_dataset = None
+
                         os.remove(f"{directory}/{file}")
         
         logging.info("Performing cloud masking")
