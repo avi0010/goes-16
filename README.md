@@ -74,6 +74,7 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/new
 
 # Now download specific product images for entire US. In this example, we are taking ABI-L1b-RadC product
 # Since this product will have 12 bands, filename will be prefixed with channel numbers, such as C04 or C12 etc.
+# -d/--prev-days is optional and can be used to download past data as well
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/DOWNLOAD_dated_bbox.py -s /app/DATA/ -p ABI-L1b-RadC -d 15
 
 # Preprocess downloaded images, uses 'Rad' band (.nc to .tif conversion & cropping)
