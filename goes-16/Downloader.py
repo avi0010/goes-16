@@ -160,9 +160,13 @@ class Downloader:
                 hour = file_param_hour[::self.hour_freq]
 
             day_download_dir = os.path.join(base_download_dir, str(day))
-            os.mkdir(day_download_dir)
+            if not os.path.exists(day_download_dir):
+                os.mkdir(day_download_dir)
+                logging.info(f"{day_download_dir} created")
 
             # Not downloading for hours that lie before start date hour and that lie after end date hour.
+            if start_date_in_year == end_date_in_year:
+                hour = list(filter(lambda e: e > start.hour and e < end.hour, hour))
             if day == start_date_in_year:
                 start_hour = start.hour
                 hour = list(filter(lambda e: e > start.hour, hour))
@@ -172,10 +176,18 @@ class Downloader:
 
             for hr in hour:
                 hour_download_dir = os.path.join(day_download_dir, str(hr))
-                os.mkdir(hour_download_dir)
+
                 files = self.fs.ls(f"s3://noaa-goes16/{param}/{start.year}/{day_str}/{str(hr).zfill(2)}/")
                 files = list(filter(lambda x: int(self.parse_filename(x.split("/")[-1])["channel"][1:]) in self.layers, files))
                 logging.info(f"Downloading files for {day}:{hr}")
+
+                if not os.path.exists(hour_download_dir):
+                    os.mkdir(hour_download_dir)
+                else:
+                    # Checking if all files have been downloaded in last attempt
+                    if len(os.listdir(hour_download_dir)) == len(files):
+                        logging.info(f"Files already present in {hour_download_dir}, skipping download for this.")
+                        continue
 
                 retries = 0
                 while retries < self.max_retries:
