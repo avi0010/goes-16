@@ -8,7 +8,7 @@ if __name__ == '__main__':
     subparsers = parser.add_subparsers(help="Type of Download")
     parser.add_argument("-s", "--save", required=True)
     parser.add_argument("-p", "--param", required=True)
-    parser.add_argument("-d", "--prev-days", required=True)
+    parser.add_argument("-d", "--prev-days", required=False)
 
     args = parser.parse_args()
 

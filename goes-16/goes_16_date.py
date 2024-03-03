@@ -192,7 +192,7 @@ class GoesDownloaderIndividualBboxDate(Downloader):
         super().__init__(save_dir, True)
         self.start = None
         self.end = None
-        self.prev_days = int(prev_days)
+        self.prev_days = prev_days if not prev_days is None else 0
 
         self.__date_interval_bboxs__()
 
