@@ -17,13 +17,13 @@ if __name__ == '__main__':
         down = GoesDownloaderIndividualBboxDate(args.save)
 
         # Removing older downloaded data
-        down.clean_root_dir(args.param)
+        #down.clean_root_dir(args.param)
 
         # Download files b/w the extremeties of bboxes
         down.download(down.start, down.end, args.param)
         logging.info("Finished downloading")
     except Exception as e:
         logging.error(e, exc_info=True)
-        down.clean_root_dir(args.param)
+        #down.clean_root_dir(args.param)
         logging.warning("Error occured- Cleaning all downloaded images")
         raise

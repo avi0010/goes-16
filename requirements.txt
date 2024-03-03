@@ -8,3 +8,5 @@ fiona
 pyproj
 geojson
 botocore
+rasterio
+affine
