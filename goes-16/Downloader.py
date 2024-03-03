@@ -23,7 +23,7 @@ class Downloader:
         self.root_dir = f"{save_dir}"
         self.boxes = Bboxs.read_file(read_bbox_datetime).boxes
         self.hour_freq = 1
-        self.max_retries = 3
+        self.max_retries = 5
         self.tmp_dir = "tmp"
         self.json_file = "cloud.json"
         self.layers = [7, 12, 13, 14, 15]

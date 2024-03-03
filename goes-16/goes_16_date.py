@@ -188,7 +188,7 @@ class GoesDownloaderDate(Downloader):
 
 class GoesDownloaderIndividualBboxDate(Downloader):
 
-    def __init__(self, save_dir, prev_days) -> None:
+    def __init__(self, save_dir, prev_days=0) -> None:
         super().__init__(save_dir, True)
         self.start = None
         self.end = None
@@ -248,7 +248,9 @@ class GoesDownloaderIndividualBboxDate(Downloader):
                         output_dataset = None
 
                         os.remove(f"{directory}/{file}")
-        
+                logging.info(f"Completed pre-processing for hour- {hr} folder")            
+            logging.info(f"Completed pre-processing for day- {day} folder")
+
         logging.info("Performing cloud masking")
         if param != 'ABI-L2-ACMC':
             # TODO- Use cloud masks (present in args.save/cloud_mask) on these images and perform interpolation to fill no data values
