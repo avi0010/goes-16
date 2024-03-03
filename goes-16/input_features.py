@@ -2,12 +2,14 @@ from collections import defaultdict
 import numpy as np
 from osgeo import ogr, gdal, osr
 from PIL import Image
-from datetime import datetime, timedelta
+from datetime import datetime
 from bbox import Bboxs, Bbox
 import s3fs
 import random
 import os
 import json
+from netCDF4 import Dataset
+import argparse
 
 class TiffFile:
     def __init__(self) -> None:
@@ -41,108 +43,56 @@ class TiffFile:
         return cls
 
 class PastFeatures:
-    def __init__(self, save_dir, box, date:datetime) -> None:
+    def __init__(self, save_dir, box, date:datetime, past:int, srcwin:int=32) -> None:
         self.fs = s3fs.S3FileSystem(anon=True)
-        self.past = 15
-        self.dir_name = "past"
+        self.past = past
         self.date = date
         self.box = box
         self.boxes = Bboxs.read_file(False).boxes
         self.save_dir = save_dir
         self.tmp_dir = "./tmp"
+        self.srcwin = srcwin
         os.mkdir(self.tmp_dir)
-        self.tmp_dir_past = f"{self.tmp_dir}/{self.dir_name}"
         self.save_dir_cropped = f"{self.tmp_dir}/crop"
-        os.mkdir(self.tmp_dir_past)
         os.mkdir(self.save_dir_cropped)
         for box in self.boxes:
-            if int(box.id) == int(self.box):
-                self.box_path = box.path
+            if int(box.id) == int(self.box.id):
+                self.box = box
 
-    def parse_filename(self, filename: str):
-        if filename.startswith("OR_"):
-            filename = filename[3:] 
 
-        parts = filename.split('_')
-        if len(parts) != 5:
-            raise ValueError(f"Invalid filename format")
+    def search(self, date:datetime):
+        day_since_year_start = (date - datetime(year=date.year, day=1, month=1)).days + 1
+        files = []
+        for day in range(day_since_year_start - self.past, day_since_year_start):
+            directory = os.path.join(self.save_dir, "tmp", str(day), str(date.hour))
+            for file in os.listdir(os.path.join(directory)):
+                f = TiffFile.parse(file)
+                if f.date.minute == self.date.minute and f.band == 7:
+                    files.append(os.path.join(directory, file))
+        return files
 
-        start_time = parts[2][1:]
-        start_dt = datetime.strptime(start_time, "%Y%j%H%M%S%f")
-        channel = int(parts[0][-2:])
+    def process(self, window):
+        for time in os.listdir(os.path.join(self.save_dir, str(self.box.id))):
+            parsed_date = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
+            files = self.search(parsed_date)
+            arr = []
+            for file in files:
+                dst = os.path.join(self.save_dir_cropped, file.split("/")[-1])
+                gdal.Translate(dst, file, srcWin=window)
+                img = gdal.Open(dst)
+                arr.append(img.GetRasterBand(1).ReadAsArray())
+                os.remove(dst)
 
-        return start_dt, channel
-
-    def process(self):
-        self.download()
-        self.convert_to_tif()
-        self.crop_file()
-        arr = []
-        for f in os.listdir(self.save_dir_cropped):
-            img = gdal.Open(f"{self.save_dir_cropped}/{f}")
-            band = np.array(img.GetRasterBand(1).ReadAsArray())
-            band = np.where(band < np.percentile(band, 99), band, 0)
-            band = np.where(band > np.percentile(band, 1), band, 0)
-            arr.append(band.tolist())
-            os.remove(os.path.join(self.save_dir_cropped, f))
-
-        result = np.array(arr).mean(axis=0).astype(np.uint8)
-        im = Image.fromarray(result)
-        im = im.resize((64, 64))
-        im.save(f"{self.save_dir}/{self.box}/{str(self.date)}/b_{5}.tiff")
+            res = np.array(arr).mean(axis=0)
+            im = Image.fromarray(res)
+            dst = os.path.join(self.save_dir, str(self.box.id), str(parsed_date), "band_5.tiff")
+            im.save(dst)
         os.rmdir(self.save_dir_cropped)
         os.rmdir(self.tmp_dir)
 
-    def crop_file(self) -> None:
-        OutSR = osr.SpatialReference()
-        OutSR.SetFromUserInput("ESRI:102498")
-        for file in os.listdir(self.tmp_dir_past):
-            options = gdal.WarpOptions(format="GTiff",
-                                   srcSRS=OutSR,
-                                   dstSRS='EPSG:4326',
-                                   cutlineDSName=f"{self.box_path}",
-                                   copyMetadata= True,
-                                   cropToCutline=True)
-
-            gdal.Warp(os.path.join(self.save_dir_cropped, file),
-                      os.path.join(self.tmp_dir_past, file),
-                      options=options)
-
-            os.remove(os.path.join(self.tmp_dir_past, file))
-
-        os.rmdir(self.tmp_dir_past)
-
-    def convert_to_tif(self, band="Rad") -> None:
-        for file in os.listdir(self.tmp_dir_past):
-            if file.endswith('.nc'):
-                layer = gdal.Open("NETCDF:{0}:{1}".format(f"{self.tmp_dir_past}/{file}", band))
-                options = gdal.TranslateOptions(format="GTiff")
-                file_name = file.replace('.nc', '.tif')
-
-                gdal.Translate(f"{self.tmp_dir_past}/{file_name}", layer, options=options)
-                os.remove(f"{self.tmp_dir_past}/{file}")
-
-    def download(self) -> None:
-        if self.date.month == 1 and self.date.day <= self.past:
-            start_date_in_year = datetime(self.date.year, 1, 1).day
-        else:
-            start_date_in_year = ((datetime(self.date.year, self.date.month, self.date.day) - timedelta(days=self.past)) - datetime(self.date.year, 1, 1)).days + 1
-
-        end_date_in_year = (datetime(self.date.year, self.date.month, self.date.day) - datetime(self.date.year, 1, 1)).days + 1
-        past_files = []
-        for day in range(start_date_in_year, end_date_in_year):
-            day_str = str(day).zfill(3)
-            temp = f"s3://noaa-goes16/ABI-L1b-RadC/{self.date.year}/{day_str}/{str(self.date.hour).zfill(2)}"
-            hour_files = self.fs.ls(temp)
-            for file in hour_files:
-                file_data, ch = self.parse_filename(file.split("/")[-1])
-                if file_data.minute == self.date.minute and ch == 7:
-                    past_files.append(file)
-
-        self.fs.get(past_files, self.tmp_dir_past)
 
 class InputFeatures:
-    def __init__(self, save_dir) -> None:
+    def __init__(self, save_dir, past:int, win_size) -> None:
         self.layers=[[7, 12],
                      [7, 13],
                      [7, 14],
@@ -153,6 +103,8 @@ class InputFeatures:
         self.save_dir = save_dir
         self.tmp_dir = "tmp"
         self.datetime_images = defaultdict(list)
+        self.past = past
+        self.win_size = win_size
         
         for day in os.listdir(f"{self.save_dir}/{self.tmp_dir}"):
             for hour in os.listdir(f"{self.save_dir}/{self.tmp_dir}/{day}"):
@@ -230,7 +182,7 @@ class InputFeatures:
                     im.save(save_location)
 
 
-    def input_features(self, img_size:int = 32):
+    def input_features(self):
         for box in self.boxes:
             for time_stamp in os.listdir(os.path.join(self.save_dir, str(box.id))):
                 parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
@@ -238,17 +190,18 @@ class InputFeatures:
                 centre_x, centre_y = self.get_center_pixel(mask_file)
 
                 # Finding offset by moving the center pixels to top-left according to image size
-                x_random = int(random.uniform(-1 * (img_size // 3), img_size // 3))
-                y_random = int(random.uniform(-1 * (img_size // 3), img_size // 3))
-                x_offset = centre_y - img_size // 2 + x_random
-                y_offset = centre_x - img_size // 2 + y_random
+                x_random = int(random.uniform(-1 * (self.win_size // 3), self.win_size // 3))
+                y_random = int(random.uniform(-1 * (self.win_size // 3), self.win_size // 3))
+                x_offset = centre_y - self.win_size // 2 + x_random
+                y_offset = centre_x - self.win_size // 2 + y_random
 
-                window = (x_offset, y_offset, img_size, img_size)
+                window = (x_offset, y_offset, self.win_size, self.win_size)
 
                 # Translate output.tif
                 gdal.Translate(mask_file.replace("tif", "tiff"), mask_file, srcWin=window)
                 os.remove(mask_file)
-
+                past = PastFeatures(self.save_dir, box, parsed_date, past=self.past, srcwin=self.win_size)
+                past.process(window)
 
                 date_from_year_start = (parsed_date - datetime(year=parsed_date.year, month=1, day=1))
                 for file in self.datetime_images[parsed_date]:
@@ -298,6 +251,13 @@ class InputFeatures:
 
 
 if __name__ == "__main__":
-    ip = InputFeatures("./DATA")
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(help="Type of Download")
+    parser.add_argument("-d", "--data", required=True)
+    parser.add_argument("-p", "--past", required=True)
+    parser.add_argument("-w", "--window", required=True)
+
+    args = parser.parse_args()
+    ip = InputFeatures(args.data, int(args.past), int(args.window))
     ip.output_label()
     ip.input_features()

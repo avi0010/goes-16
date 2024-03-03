@@ -81,5 +81,5 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/DOW
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/PREPROCESS_images_bbox.py -s /app/DATA/ -p ABI-L1b-RadC -b Rad -f radiance
 
 # Input features
-$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/input_features.py
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/input_features.py -d /app/DATA -p 3 -w 32
 ```
