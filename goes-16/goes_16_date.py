@@ -1,4 +1,5 @@
 from datetime import datetime
+from datetime import datetime, timedelta
 from operator import itemgetter
 
 from osgeo import gdal
@@ -187,10 +188,11 @@ class GoesDownloaderDate(Downloader):
 
 class GoesDownloaderIndividualBboxDate(Downloader):
 
-    def __init__(self, save_dir) -> None:
+    def __init__(self, save_dir, prev_days) -> None:
         super().__init__(save_dir, True)
         self.start = None
         self.end = None
+        self.prev_days = int(prev_days)
 
         self.__date_interval_bboxs__()
 
@@ -199,6 +201,9 @@ class GoesDownloaderIndividualBboxDate(Downloader):
         date_intervals = [(box.start, box.end) for box in self.boxes]
         self.start = min(date_intervals, key=itemgetter(0))[0]
         self.end = max(date_intervals, key=itemgetter(1))[1]
+
+        # Adjusting start date to also include past data
+        self.start -= timedelta(days=self.prev_days)
 
     def pre_processing(self, param, band):
 

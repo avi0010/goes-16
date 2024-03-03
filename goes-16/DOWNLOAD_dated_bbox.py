@@ -8,13 +8,14 @@ if __name__ == '__main__':
     subparsers = parser.add_subparsers(help="Type of Download")
     parser.add_argument("-s", "--save", required=True)
     parser.add_argument("-p", "--param", required=True)
+    parser.add_argument("-d", "--prev-days", required=True)
 
     args = parser.parse_args()
 
     try:
         logging.info(f"Bulk Downloading based on bbox geojson start & end dates")
 
-        down = GoesDownloaderIndividualBboxDate(args.save)
+        down = GoesDownloaderIndividualBboxDate(args.save, args.prev_days)
 
         # Removing older downloaded data
         #down.clean_root_dir(args.param)
