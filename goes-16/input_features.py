@@ -2,7 +2,7 @@ from collections import defaultdict
 import numpy as np
 from osgeo import ogr, gdal, osr
 from PIL import Image
-from datetime import datetime
+from datetime import datetime, timedelta
 from bbox import Bboxs, Bbox
 import s3fs
 import random
@@ -10,6 +10,7 @@ import os
 import json
 from netCDF4 import Dataset
 import argparse
+from tqdm import tqdm
 
 class TiffFile:
     def __init__(self) -> None:
@@ -51,6 +52,7 @@ class PastFeatures:
         self.boxes = Bboxs.read_file(False).boxes
         self.save_dir = save_dir
         self.tmp_dir = "./tmp"
+        self.tmp_save_dir = "tmp"
         self.srcwin = srcwin
         os.mkdir(self.tmp_dir)
         self.save_dir_cropped = f"{self.tmp_dir}/crop"
@@ -61,14 +63,15 @@ class PastFeatures:
 
 
     def search(self, date:datetime):
-        day_since_year_start = (date - datetime(year=date.year, day=1, month=1)).days + 1
         files = []
-        for day in range(day_since_year_start - self.past, day_since_year_start):
-            directory = os.path.join(self.save_dir, "tmp", str(day), str(date.hour))
-            for file in os.listdir(os.path.join(directory)):
-                f = TiffFile.parse(file)
-                if f.date.minute == self.date.minute and f.band == 7:
-                    files.append(os.path.join(directory, file))
+        for year in os.listdir(os.path.join(self.save_dir, self.tmp_save_dir)):
+            for day in os.listdir(os.path.join(self.save_dir, self.tmp_save_dir, year)):
+                for hr in os.listdir(os.path.join(self.save_dir, self.tmp_save_dir, year, day)):
+                    directory = os.path.join(self.save_dir, self.tmp_save_dir, str(year), str(day), str(hr))
+                    for file in os.listdir(os.path.join(self.save_dir, self.tmp_save_dir, year, day, hr)):
+                        f = TiffFile.parse(file)
+                        if f.date.minute == self.date.minute and f.band == 7:
+                            files.append(os.path.join(directory, file))
         return files
 
     def process(self, window):
@@ -106,13 +109,14 @@ class InputFeatures:
         self.past = past
         self.win_size = win_size
         
-        for day in os.listdir(f"{self.save_dir}/{self.tmp_dir}"):
-            for hour in os.listdir(f"{self.save_dir}/{self.tmp_dir}/{day}"):
-               directory = os.path.join(self.save_dir, self.tmp_dir, str(day), str(hour))
-               for file in os.listdir(directory):
-                   tif_file = TiffFile.parse(file)
-                   if tif_file.band in self.input_layers:
-                       self.datetime_images[tif_file.date].append(file)
+        for year in os.listdir(f"{self.save_dir}/{self.tmp_dir}"):
+            for day in os.listdir(f"{self.save_dir}/{self.tmp_dir}/{year}"):
+                for hour in os.listdir(f"{self.save_dir}/{self.tmp_dir}/{year}/{day}"):
+                   directory = os.path.join(self.save_dir, self.tmp_dir, year, str(day), str(hour))
+                   for file in os.listdir(directory):
+                       tif_file = TiffFile.parse(file)
+                       if tif_file.band in self.input_layers:
+                           self.datetime_images[tif_file.date].append(file)
 
         for box in self.boxes:
             for date in self.datetime_images.keys():
@@ -183,8 +187,9 @@ class InputFeatures:
 
 
     def input_features(self):
-        for box in self.boxes:
-            for time_stamp in os.listdir(os.path.join(self.save_dir, str(box.id))):
+        for box in (pbar := tqdm(self.boxes, desc="Input features")):
+            pbar.set_description_str(f"Box: {str(box.id)}")
+            for time_stamp in tqdm(os.listdir(os.path.join(self.save_dir, str(box.id))), leave=False, desc="time"):
                 parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
                 mask_file = os.path.join(self.save_dir, str(box.id), time_stamp, "output.tif")
                 centre_x, centre_y = self.get_center_pixel(mask_file)
@@ -205,7 +210,7 @@ class InputFeatures:
 
                 date_from_year_start = (parsed_date - datetime(year=parsed_date.year, month=1, day=1))
                 for file in self.datetime_images[parsed_date]:
-                    src_file = os.path.join(self.save_dir, self.tmp_dir, str(date_from_year_start.days + 1), str(parsed_date.hour), file)
+                    src_file = os.path.join(self.save_dir, self.tmp_dir, str(parsed_date.year), str(date_from_year_start.days + 1), str(parsed_date.hour), file)
                     dst_file = os.path.join(self.save_dir, str(box.id), time_stamp, file)
                     gdal.Translate(dst_file, src_file, srcWin=window)
 
@@ -215,14 +220,15 @@ class InputFeatures:
         with open("./files/reprojected_NIFC_2023_Wildfire_Perimeters.json") as f:
             geojson_data = json.load(f)
 
-        for box in self.boxes:
-            for date in self.datetime_images.keys():
+        for box in (pbar := tqdm(self.boxes, leave=False)):
+            pbar.set_postfix_str(f"Box: {str(box.id)}")
+            for date in tqdm(self.datetime_images.keys(), desc="date", leave=False):
                 if box.start < date and date < box.end:
 
                     multipolygon = self.create_polygon(geojson_data, box)
                     image_name = self.datetime_images[date][0]
                     date_from_year_start = (date - datetime(year=date.year, month=1, day=1)).days + 1
-                    reference_raster_path = os.path.join(self.save_dir, self.tmp_dir, str(date_from_year_start), str(date.hour), image_name)
+                    reference_raster_path = os.path.join(self.save_dir, self.tmp_dir, str(date.year), str(date_from_year_start), str(date.hour), image_name)
 
                     raster_layer = gdal.Open(reference_raster_path)
                     cols = raster_layer.RasterXSize

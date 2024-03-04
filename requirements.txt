@@ -9,5 +9,5 @@ pyproj
 geojson
 botocore
 netCDF4
-rasterio
 affine
+tqdm

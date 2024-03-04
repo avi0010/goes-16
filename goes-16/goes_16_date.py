@@ -1,6 +1,8 @@
 from datetime import datetime
 from datetime import datetime, timedelta
 from operator import itemgetter
+from typing import List
+from tqdm import tqdm
 
 from osgeo import gdal
 import os
@@ -188,8 +190,8 @@ class GoesDownloaderDate(Downloader):
 
 class GoesDownloaderIndividualBboxDate(Downloader):
 
-    def __init__(self, save_dir, prev_days=0) -> None:
-        super().__init__(save_dir, True)
+    def __init__(self, save_dir, bands: List[int], prev_days=0) -> None:
+        super().__init__(save_dir, bands, True)
         self.start = None
         self.end = None
         self.prev_days = prev_days if not prev_days is None else 0
@@ -209,47 +211,48 @@ class GoesDownloaderIndividualBboxDate(Downloader):
 
         logging.info("Converting .nc files to .tif")
 
-        for day in os.listdir(os.path.join(self.root_dir, self.tmp_dir)):
-            for hr in os.listdir(os.path.join(self.root_dir, self.tmp_dir, day)):
-                for file in os.listdir(os.path.join(self.root_dir, self.tmp_dir, day, hr)):
-                    directory = f"{self.root_dir}/{self.tmp_dir}/{day}/{hr}"
+        for year in tqdm(os.listdir(os.path.join(self.root_dir, self.tmp_dir)), desc="Year", position=0):
+            for day in tqdm(os.listdir(os.path.join(self.root_dir, self.tmp_dir, year)), desc="day", position=1, leave=False):
+                for hr in tqdm(os.listdir(os.path.join(self.root_dir, self.tmp_dir, year, day)), desc="hour", position=2, leave=False):
+                    for file in tqdm(os.listdir(os.path.join(self.root_dir, self.tmp_dir, year, day, hr)), desc="file", position=3, leave=False):
+                        directory = f"{self.root_dir}/{self.tmp_dir}/{year}/{day}/{hr}"
 
-                    if file.endswith('.nc'):
-                        layer = gdal.Open("NETCDF:{0}:{1}".format(f"{directory}/{file}", band))
-                        dataset = Dataset(f"{directory}/{file}",'r')
+                        if file.endswith('.nc'):
+                            layer = gdal.Open("NETCDF:{0}:{1}".format(f"{directory}/{file}", band))
+                            dataset = Dataset(f"{directory}/{file}",'r')
 
-                        # Get coefficients for calculation of brightness temperature
-                        planck_fk1 = dataset.variables['planck_fk1'][:]
-                        planck_fk2 = dataset.variables['planck_fk2'][:]
-                        planck_bc1 = dataset.variables['planck_bc1'][:]
-                        planck_bc2 = dataset.variables['planck_bc2'][:]
+                            # Get coefficients for calculation of brightness temperature
+                            planck_fk1 = dataset.variables['planck_fk1'][:]
+                            planck_fk2 = dataset.variables['planck_fk2'][:]
+                            planck_bc1 = dataset.variables['planck_bc1'][:]
+                            planck_bc2 = dataset.variables['planck_bc2'][:]
 
-                        # Read the radiance data
-                        rad = dataset.variables['Rad'][:]
+                            # Read the radiance data
+                            rad = dataset.variables['Rad'][:]
 
-                        dataset.close()
+                            dataset.close()
 
-                        bt = ( (planck_fk2 / (np.log( (planck_fk1/rad)+1 ))) - planck_bc1 ) /  planck_bc2
+                            bt = ( (planck_fk2 / (np.log( (planck_fk1/rad)+1 ))) - planck_bc1 ) /  planck_bc2
 
-                        file_name = file.replace('.nc', '.tif')
+                            file_name = file.replace('.nc', '.tif')
 
-                        driver = gdal.GetDriverByName("GTiff")
-                        output_dataset = driver.Create(f"{directory}/{file_name}", layer.RasterXSize, layer.RasterYSize, 1, gdal.GDT_Float32)
+                            driver = gdal.GetDriverByName("GTiff")
+                            output_dataset = driver.Create(f"{directory}/{file_name}", layer.RasterXSize, layer.RasterYSize, 1, gdal.GDT_Float32)
 
-                        # Copy geotransform and projection
-                        output_dataset.SetGeoTransform(layer.GetGeoTransform())
-                        output_dataset.SetProjection(layer.GetProjection())
+                            # Copy geotransform and projection
+                            output_dataset.SetGeoTransform(layer.GetGeoTransform())
+                            output_dataset.SetProjection(layer.GetProjection())
 
-                        # Write the calculated data to the new GeoTIFF file
-                        output_dataset.GetRasterBand(1).WriteArray(bt)
-                        output_dataset.FlushCache()
+                            # Write the calculated data to the new GeoTIFF file
+                            output_dataset.GetRasterBand(1).WriteArray(bt)
+                            output_dataset.FlushCache()
 
-                        layer = None
-                        output_dataset = None
+                            layer = None
+                            output_dataset = None
 
-                        os.remove(f"{directory}/{file}")
-                logging.info(f"Completed pre-processing for hour- {hr} folder")            
-            logging.info(f"Completed pre-processing for day- {day} folder")
+                            os.remove(f"{directory}/{file}")
+                    logging.info(f"Completed pre-processing for hour- {hr} folder")            
+                logging.info(f"Completed pre-processing for day- {day} folder")
 
         logging.info("Performing cloud masking")
         if param != 'ABI-L2-ACMC':

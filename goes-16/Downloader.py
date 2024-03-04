@@ -1,8 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import shutil
 import os
 import time
 import logging
+from typing import List
+from tqdm import tqdm
 
 from osgeo import osr
 import s3fs
@@ -18,7 +20,7 @@ logging.basicConfig(level=logging.INFO,
 )
 
 class Downloader:
-    def __init__(self, save_dir, read_bbox_datetime:bool=False) -> None:
+    def __init__(self, save_dir, bands:List[int], read_bbox_datetime:bool=False) -> None:
         self.fs = s3fs.S3FileSystem(anon=True)
         self.root_dir = f"{save_dir}"
         self.boxes = Bboxs.read_file(read_bbox_datetime).boxes
@@ -26,7 +28,7 @@ class Downloader:
         self.max_retries = 5
         self.tmp_dir = "tmp"
         self.json_file = "cloud.json"
-        self.layers = [7, 12, 13, 14, 15]
+        self.layers = bands
 
         if read_bbox_datetime:
             self.hour_freq = None # Since we are downloading all available images in an hour
@@ -104,89 +106,55 @@ class Downloader:
         file_path = f"{par['channel']}_{par['start_time'].year}{str(par['start_time'].month).zfill(2)}{str(par['start_time'].day).zfill(2)}T{str(par['start_time'].hour).zfill(2)}{str(par['start_time'].minute).zfill(2)}{str(par['start_time'].second).zfill(2)}{str(par['start_time'].microsecond).zfill(3)}Z.tif"
         return file_path
 
-    def download(self, start:datetime, end:datetime, param:str, latest:bool=False):
+    def download(self, start:datetime, end:datetime, param:str):
 
         logging.info(f"Starting download for date interval: {start} - {end}")
 
-        # Check Year
-        try:
-            database_year = self.fs.ls(f"s3://noaa-goes16/{param}/")
-            file_param_year = [int(x.split("/")[-1]) for x in database_year] 
-        except Exception as e:
-            raise ValueError(f"Unable to load aws due to {e}")
-        if start.year != end.year:
-            raise ValueError(f"{start.year} and {end.year} should be same")
-        if not start.year in file_param_year:
-            raise ValueError(f"{start.year} not in database")
-        if not end.year in file_param_year:
-            raise ValueError(f"{end.year} not in database")
+        dates = [start + timedelta(days=x) for x in range((end - start).days + 1)]
+        dates.append(end)
+        for date in (pbar:= tqdm(dates, position=0)):
+            pbar.set_postfix_str(f"date: {str(date)}")
+            day = (datetime(date.year, date.month, date.day) - datetime(date.year, 1, 1)).days + 1
 
+            base_download_dir = os.path.join(self.root_dir, self.tmp_dir)
+            if not os.path.exists(base_download_dir):
+                os.mkdir(base_download_dir)
 
-        # Check day
-        start_date_in_year = (datetime(start.year, start.month, start.day) - datetime(start.year, 1, 1)).days + 1
-        end_date_in_year = (datetime(end.year, end.month, end.day) - datetime(start.year, 1, 1)).days + 1
+            base_download_dir = os.path.join(base_download_dir, str(date.year))
+            if not os.path.exists(base_download_dir):
+                os.mkdir(base_download_dir)
 
-        try:
-            database_day = self.fs.ls(f"s3://noaa-goes16/{param}/{start.year}")
-            file_param_day = [int(x.split("/")[-1]) for x in database_day]
-        except Exception as e:
-            raise ValueError(f"Unable to load aws due to {e}")
-        if not end_date_in_year in file_param_day:
-            file_param_day.pop(-1)
-            start_date_in_year -= 1
-            end_date_in_year -= 1
-
-        base_download_dir = os.path.join(self.root_dir, self.tmp_dir)
-        if param == 'ABI-L2-ACMC':
-            base_download_dir = os.path.join(self.root_dir, 'cloud_mask')
-        if not os.path.exists(base_download_dir):
-            os.mkdir(base_download_dir)
-
-
-        for day in range(start_date_in_year, end_date_in_year + 1):
             try:
-                day_str = '0' * (3 - len(str(day))) + str(day)
-                database_hour = self.fs.ls(f"s3://noaa-goes16/{param}/{start.year}/{day_str}")
-                file_param_hour = [int(x.split("/")[-1]) for x in database_hour]
+                database_hour = self.fs.ls(f"s3://noaa-goes16/{param}/{date.year}/{str(day).zfill(3)}")
             except Exception as e:
-                logging.error(f"Unable to query aws for {day_str}: {param}")
+                logging.error(f"Unable to query aws for {str(day).zfill(3)}: {param}")
                 raise ValueError(f"Unable to load aws due to {e}")
 
-            if latest:
-                hour = [file_param_hour[-1]]
-            if self.hour_freq is None:
-                hour = file_param_hour # Because we want to download all images available within an hour
-            else:
-                hour = file_param_hour[::self.hour_freq]
+            # Not downloading for hours that lie before start date hour and that lie after end date hour.
+            if date == start:
+                database_hour = list(filter(lambda e: int(e.split("/")[-1]) >= start.hour, database_hour))
+            elif date == end:
+                database_hour = list(filter(lambda e: int(e.split("/")[-1]) <= end.hour, database_hour))
+
+            hour = list(map(lambda x: int(x.split("/")[-1]), database_hour))
 
             day_download_dir = os.path.join(base_download_dir, str(day))
-            if not os.path.exists(day_download_dir):
-                os.mkdir(day_download_dir)
-                logging.info(f"{day_download_dir} created")
+            os.mkdir(day_download_dir)
 
-            # Not downloading for hours that lie before start date hour and that lie after end date hour.
-            if start_date_in_year == end_date_in_year:
-                hour = list(filter(lambda e: e > start.hour and e < end.hour, hour))
-            if day == start_date_in_year:
-                start_hour = start.hour
-                hour = list(filter(lambda e: e > start.hour, hour))
-            elif day == end_date_in_year:
-                end_hour = end.hour
-                hour = list(filter(lambda e: e < end.hour, hour))
-
-            for hr in hour:
+            for hr in (h_bar := tqdm(hour, leave=False, position=1)):
+                h_bar.set_postfix_str(f"hr:{str(hr)}")
+                files = self.fs.ls(f"s3://noaa-goes16/{param}/{date.year}/{str(day).zfill(3)}/{str(hr).zfill(2)}/")
                 hour_download_dir = os.path.join(day_download_dir, str(hr))
-
-                files = self.fs.ls(f"s3://noaa-goes16/{param}/{start.year}/{day_str}/{str(hr).zfill(2)}/")
-                files = list(filter(lambda x: int(self.parse_filename(x.split("/")[-1])["channel"][1:]) in self.layers, files))
+                if self.layers is not None:
+                    files = list(filter(lambda x: int(self.parse_filename(x.split("/")[-1])["channel"][1:]) in self.layers, files))
                 logging.info(f"Downloading files for {day}:{hr}")
 
                 if not os.path.exists(hour_download_dir):
                     os.mkdir(hour_download_dir)
                 else:
-                    # Checking if all files have been downloaded in last attempt
+                    # checking if all files have been downloaded in last attempt
                     if len(os.listdir(hour_download_dir)) == len(files):
-                        logging.info(f"Files already present in {hour_download_dir}, skipping download for this.")
+                        logging.info(f"files already present in {hour_download_dir}, skipping download for this.")
                         continue
 
                 retries = 0
@@ -208,8 +176,8 @@ class Downloader:
                             logging.error(f"Unable to Download aws data for {day}: {param}")
                             raise e
                 else:
-                    raise Exception(f"Failed to download file after {max_retries} retries.")
-                
+                    raise Exception(f"Failed to download file after {self.max_retries} retries.")
+
                 for file in os.listdir(hour_download_dir):
                     source = os.path.join(hour_download_dir, file)
                     dst = os.path.join(hour_download_dir, self.filename(file).replace('.tif', '.nc'))

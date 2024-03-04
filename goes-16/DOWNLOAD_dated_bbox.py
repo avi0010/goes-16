@@ -4,18 +4,20 @@ import logging
 from goes_16_date import GoesDownloaderDate, GoesDownloaderIndividualBboxDate
 
 if __name__ == '__main__':
+    list_of_ints = lambda arg: list(map(int, arg.split(',')))
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(help="Type of Download")
     parser.add_argument("-s", "--save", required=True)
     parser.add_argument("-p", "--param", required=True)
-    parser.add_argument("-d", "--prev-days", required=False)
+    parser.add_argument("-d", "--prev-days", required=False, type=int)
+    parser.add_argument("-b", "--bands", required=False, type=list_of_ints)
 
     args = parser.parse_args()
 
     try:
         logging.info(f"Bulk Downloading based on bbox geojson start & end dates")
 
-        down = GoesDownloaderIndividualBboxDate(args.save, args.prev_days)
+        down = GoesDownloaderIndividualBboxDate(args.save, args.bands, args.prev_days)
 
         # Removing older downloaded data
         #down.clean_root_dir(args.param)
