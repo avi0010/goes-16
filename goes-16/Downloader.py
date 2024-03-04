@@ -110,7 +110,7 @@ class Downloader:
 
         logging.info(f"Starting download for date interval: {start} - {end}")
 
-        dates = [start + timedelta(days=x) for x in range((end - start).days + 1)]
+        dates = [start + timedelta(days=x) for x in range((end - start).days)]
         dates.append(end)
         for date in (pbar:= tqdm(dates, position=0)):
             pbar.set_postfix_str(f"date: {str(date)}")
