@@ -41,7 +41,7 @@ docker run  --rm  -v "/repo/path/goes-16:/app" goes_downloader:stable python3 go
 Downloads latest images and saves them in `DATA` folder
 
 ```
-docker run --rm  -v "/path/to/repo/goes-16:/app" [image-name]:[image-tag] python3 goes-16/main.py -s DATA/ date -d 2023-09-01 2023-10-02
+docker run --rm  -v "/path/to/repo/goes-16:/app" goes_downloader:stable python3 goes-16/main.py -s DATA/ date -d 2023-09-01 2023-10-02
 ```
 Downloads images between start and end date, in above example 29-9-2023 & 1-10-2023, and saves them in `DATA` folder
 
@@ -81,5 +81,17 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/DOW
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/PREPROCESS_images_bbox.py -s /app/DATA/ -p ABI-L1b-RadC -b Rad -f radiance
 
 # Input features
-$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/input_features.py -d /app/DATA -p 3 -w 32
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/input_features.py -d /app/DATA -p 15 -w 32
+```
+
+### Cropping validation
+```bash
+# Pick a geojson and maybe adjust start & end date to reduce download files
+$   docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/DOWNLOAD_dated_bbox.py -s /app/VALID/ -p ABI-L2-FDCC
+
+# For each downloaded FDCC (fire mask) raster, it'll return names of rasters that have at least 1 fire pixel
+$   docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/goes_16_date.py -s DATA/ date -d 2023-09-01 2023-10-02
+
+# Based on above file path, enter that path in `reference_raster_path` var in cropper.py script
+$   docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/cropper.py
 ```

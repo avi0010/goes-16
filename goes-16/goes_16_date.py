@@ -25,28 +25,30 @@ logging.basicConfig(level=logging.INFO,
 
 class GoesDownloaderDate(Downloader):
     def __init__(self, save_dir, start:datetime=None, end:datetime=None) -> None:
-        super().__init__(save_dir)
+        super().__init__(save_dir, [])
         self.start = start
         self.end = end
 
         logging.info("Calculating cloud cover for Bulk Download")
-        self.__bbox_cloud_covers__()
-        self.__index_bbox__()
+        '''self.__bbox_cloud_covers__()
+        self.__index_bbox__()'''
 
     def wildfire_map(self):
-        self.download(self.start, self.end, "ABI-L2-FDCC")
+        #self.download(self.start, self.end, "ABI-L2-FDCC")
         for box in self.boxes:
             if not os.path.exists(f"{self.root_dir}/{box.id}/wld_map"):
                 os.mkdir(f"{self.root_dir}/{box.id}/wld_map/")
 
-        for day in os.listdir(f"{self.root_dir}/{self.tmp_dir}/"):
-            for hr in os.listdir(f"{self.root_dir}/{self.tmp_dir}/{day}"):
-                for file in os.listdir(f"{self.root_dir}/{self.tmp_dir}/{day}/{hr}"):
-                    directory = f"{self.root_dir}/{self.tmp_dir}/{day}/{hr}"
-                    wildfire_area(f"{directory}/{file}", directory)
-                    os.remove(f"{directory}/{file}")
+        for year in os.listdir(f"{self.root_dir}/{self.tmp_dir}/"):
+            for day in os.listdir(f"{self.root_dir}/{self.tmp_dir}/{year}"):
+                for hr in os.listdir(f"{self.root_dir}/{self.tmp_dir}/{year}/{day}"):
+                    for file in os.listdir(f"{self.root_dir}/{self.tmp_dir}/{year}/{day}/{hr}"):
+                        directory = f"{self.root_dir}/{self.tmp_dir}/{year}/{day}/{hr}"
+                        print(f"{directory}/{file}")
+                        wildfire_area(f"{directory}/{file}", directory)
+                        #os.remove(f"{directory}/{file}")
 
-        for day in os.listdir(f"{self.root_dir}/{self.tmp_dir}/"):
+        '''for day in os.listdir(f"{self.root_dir}/{self.tmp_dir}/"):
             for hr in os.listdir(f"{self.root_dir}/{self.tmp_dir}/{day}"):
                 for file in os.listdir(f"{self.root_dir}/{self.tmp_dir}/{day}/{hr}"):
                     directory = f"{self.root_dir}/{self.tmp_dir}/{day}/{hr}"
@@ -78,7 +80,7 @@ class GoesDownloaderDate(Downloader):
                         gdal.Warp(f"{self.root_dir}/{box.id}/wld_map/{file_path}",
                                   f"{directory}/{file}",
                                   options=options)
-        self.clean_root_dir()
+        self.clean_root_dir()'''
                     
     def __index_bbox__(self):
         box_cover_map, box_file_map = {}, {}
@@ -332,10 +334,5 @@ class GoesDownloaderIndividualBboxDate(Downloader):
 
 
 if __name__ == "__main__":
-    down = GoesDownloaderDate("/tmp/DATA", datetime(2023, 9, 30), datetime(2023, 10, 2))
+    down = GoesDownloaderDate("/app/VALID", datetime(2023, 9, 30), datetime(2023, 10, 2))
     down.wildfire_map()
-    down.run("ABI-L2-ACHAC", "cloud", "HT")
-    down.run("ABI-L2-FDCC", "mask", "Mask")
-    down.run("ABI-L2-FDCC", "area", "Area")
-    down.run("ABI-L2-FDCC", "power", "Power")
-    down.run("ABI-L2-FDCC", "temp", "Temp")

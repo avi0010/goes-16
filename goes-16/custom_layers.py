@@ -17,23 +17,23 @@ def wildfire_area(in_file, save_loc, default_confidence_value=0):
                 35: 0.1,
                 }
 
-    inDs = gdal.Open(f"NETCDF:{in_file}:{'Mask'}")
+    inDs = gdal.Open(f"NETCDF:{in_file}:{'Mask'}", gdal.GA_ReadOnly)
     band1 = inDs.GetRasterBand(1)
     rows = inDs.RasterYSize
     cols = inDs.RasterXSize
     cropData = band1.ReadAsArray(0,0,cols,rows)
-    file_name = in_file.split("/")[-1].replace("FDCC", "WLD")
 
-    driver = inDs.GetDriver()
-    outDs = driver.Create(f"{save_loc}/{file_name}", cols, rows, 1, GDT_Float32)
-    outBand = outDs.GetRasterBand(1)
     outData = np.ones(cropData.shape, dtype=np.float32) * default_confidence_value
     for v, conf in conf_map.items():
         outData[cropData == v] = conf
 
-    outBand.WriteArray(outData)
+    fire_indexes = np.where(outData == 1)
+    print(fire_indexes)
+
+    inDs = None
+    '''outBand.WriteArray(outData)
     outBand.FlushCache()
     outBand.SetNoDataValue(default_confidence_value)
     outDs.SetGeoTransform(inDs.GetGeoTransform())
     outDs.SetProjection(inDs.GetProjection())
-    del outData
+    del outData'''
