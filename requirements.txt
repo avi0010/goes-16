@@ -11,3 +11,4 @@ botocore
 netCDF4
 affine
 tqdm
+matplotlib

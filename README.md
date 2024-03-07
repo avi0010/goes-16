@@ -83,3 +83,12 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/PRE
 # Input features
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/input_features.py -d /app/DATA -p 3 -w 32
 ```
+
+**Model training**
+```bash
+#training
+$	sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 training/train.py -d DATA -r 0.8 -e 10 -t 0.4 -m R2AttU
+
+#validation
+$	sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 training/val.py -d DATA/ -m training/models/R2U/model20_0.03494155779480934.pth
+```
