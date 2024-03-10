@@ -32,7 +32,7 @@ class TiffFile:
         hour = split[1][9:11]
         minute = split[1][11:13]
         seconds = split[1][13:15]
-        microseconds = split[1][15:21]
+        microseconds = split[1][15:split[1].find('Z')]
         date_time = datetime(year=int(year),
                              month=int(month),
                              day=int(day),
@@ -265,5 +265,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     ip = InputFeatures(args.data, int(args.past), int(args.window))
-    ip.output_label()
-    ip.input_features()
+    #ip.output_label()
+    #ip.input_features()
