@@ -11,6 +11,14 @@ import json
 from netCDF4 import Dataset
 import argparse
 from tqdm import tqdm
+import logging
+
+logging.basicConfig(level=logging.INFO,
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    filename="input_features.log", 
+    filemode="w"
+)
 
 class TiffFile:
     def __init__(self) -> None:
@@ -76,7 +84,12 @@ class PastFeatures:
 
     def process(self, window):
         for time in os.listdir(os.path.join(self.save_dir, str(self.box.id))):
-            parsed_date = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
+
+            if time.find('.') == -1:
+                parsed_date = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+            else:
+                parsed_date = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
+
             files = self.search(parsed_date)
             arr = []
             for file in files:
@@ -157,7 +170,10 @@ class InputFeatures:
     def model_inputs(self):
         for box in self.boxes:
             for time_stamp in os.listdir(os.path.join(self.save_dir, str(box.id))):
-                parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
+                if time_stamp.find('.') == -1:
+                    parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S")
+                else:
+                    parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
 
                 for idx, layer in enumerate(self.layers):
                     layer1, layer2 = None, None
@@ -190,7 +206,11 @@ class InputFeatures:
         for box in (pbar := tqdm(self.boxes, desc="Input features")):
             pbar.set_description_str(f"Box: {str(box.id)}")
             for time_stamp in tqdm(os.listdir(os.path.join(self.save_dir, str(box.id))), leave=False, desc="time"):
-                parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
+                if time_stamp.find('.') == -1:
+                    parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S")
+                else:
+                    parsed_date = datetime.strptime(time_stamp, "%Y-%m-%d %H:%M:%S.%f")
+
                 mask_file = os.path.join(self.save_dir, str(box.id), time_stamp, "output.tif")
                 centre_x, centre_y = self.get_center_pixel(mask_file)
 
@@ -207,13 +227,16 @@ class InputFeatures:
                 os.remove(mask_file)
                 past = PastFeatures(self.save_dir, box, parsed_date, past=self.past, srcwin=self.win_size)
                 past.process(window)
+                logging.info(f"Past data processed - Box- {box.id} | Timestamp- {time_stamp}")
 
                 date_from_year_start = (parsed_date - datetime(year=parsed_date.year, month=1, day=1))
                 for file in self.datetime_images[parsed_date]:
                     src_file = os.path.join(self.save_dir, self.tmp_dir, str(parsed_date.year), str(date_from_year_start.days + 1), str(parsed_date.hour), file)
                     dst_file = os.path.join(self.save_dir, str(box.id), time_stamp, file)
                     gdal.Translate(dst_file, src_file, srcWin=window)
-
+                    logging.info(f"File cropped - Box- {box.id} | Timestamp- {time_stamp} | Src File- {src_file}")    
+                logging.info(f"Input feature generated for box- {box.id} & timestamp- {time_stamp}")
+            logging.info(f"Input feature generation completed for box- {box.id}")
 
     def output_label(self):
 
@@ -255,6 +278,7 @@ class InputFeatures:
                     output_file = os.path.join(self.save_dir, str(box.id), str(date), "output.tif")
                     gdal.Translate(output_file, target_layer, format='GTiff')
 
+            logging.info(f"Output label generated for box- {box.id}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -265,5 +289,9 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     ip = InputFeatures(args.data, int(args.past), int(args.window))
-    #ip.output_label()
-    #ip.input_features()
+    try:
+        ip.output_label()
+        ip.input_features()
+    except Exception as e:
+        logging.error(str(e))
+        raise
