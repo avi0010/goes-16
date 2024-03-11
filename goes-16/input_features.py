@@ -69,40 +69,40 @@ class PastFeatures:
             if int(box.id) == int(self.box.id):
                 self.box = box
 
+        self.dates = [date - timedelta(days=x) for x in range(self.past)]
 
-    def search(self, date:datetime):
+
+    def search(self):
         files = []
-        for year in os.listdir(os.path.join(self.save_dir, self.tmp_save_dir)):
-            for day in os.listdir(os.path.join(self.save_dir, self.tmp_save_dir, year)):
-                for hr in os.listdir(os.path.join(self.save_dir, self.tmp_save_dir, year, day)):
-                    directory = os.path.join(self.save_dir, self.tmp_save_dir, str(year), str(day), str(hr))
-                    for file in os.listdir(os.path.join(self.save_dir, self.tmp_save_dir, year, day, hr)):
-                        f = TiffFile.parse(file)
-                        if f.date.minute == self.date.minute and f.band == 7:
-                            files.append(os.path.join(directory, file))
+
+        for date in self.dates:
+            day = (datetime(date.year, date.month, date.day) - datetime(date.year, 1, 1)).days + 1
+            #convert days in list int to
+            days = list(map(lambda x: int(x), list(os.listdir(os.path.join(self.save_dir, self.tmp_dir, str(date.year))))))
+            if day not in days:
+                continue
+            for file in os.listdir(os.path.join(self.save_dir, self.tmp_save_dir, str(date.year), str(day), str(date.hour))):
+                directory = os.path.join(self.save_dir, self.tmp_save_dir, str(date.year), str(day), str(date.hour))
+                f = TiffFile.parse(file)
+                if f.date.minute == self.date.minute and f.date.hour == self.date.hour and f.band == 7:
+                    files.append(os.path.join(directory, file))
+
         return files
 
     def process(self, window):
-        for time in os.listdir(os.path.join(self.save_dir, str(self.box.id))):
+        files = self.search()
+        arr = []
+        for file in files:
+            dst = os.path.join(self.save_dir_cropped, file.split("/")[-1])
+            gdal.Translate(dst, file, srcWin=window)
+            img = gdal.Open(dst)
+            arr.append(img.GetRasterBand(1).ReadAsArray())
+            os.remove(dst)
 
-            if time.find('.') == -1:
-                parsed_date = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
-            else:
-                parsed_date = datetime.strptime(time, "%Y-%m-%d %H:%M:%S.%f")
-
-            files = self.search(parsed_date)
-            arr = []
-            for file in files:
-                dst = os.path.join(self.save_dir_cropped, file.split("/")[-1])
-                gdal.Translate(dst, file, srcWin=window)
-                img = gdal.Open(dst)
-                arr.append(img.GetRasterBand(1).ReadAsArray())
-                os.remove(dst)
-
-            res = np.array(arr).mean(axis=0)
-            im = Image.fromarray(res)
-            dst = os.path.join(self.save_dir, str(self.box.id), str(parsed_date), "band_5.tiff")
-            im.save(dst)
+        res = np.array(arr).mean(axis=0)
+        im = Image.fromarray(res)
+        dst = os.path.join(self.save_dir, str(self.box.id), str(self.date), "band_5.tiff")
+        im.save(dst)
         os.rmdir(self.save_dir_cropped)
         os.rmdir(self.tmp_dir)
 
