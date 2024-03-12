@@ -16,6 +16,15 @@ from R2AttU_Net import R2AttU_Net
 from R2U_Net import R2U_Net
 from U_Netpp import UnetPP
 
+import logging
+
+logging.basicConfig(level=logging.INFO,
+    format='%(asctime)s %(levelname)-8s %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S',
+    filename="training.log", 
+    filemode="w"
+)
+
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 
 model_save_path = os.path.join("training", "models")
@@ -52,8 +61,10 @@ inputs_list = []
 for box in boxes:
     for fire in os.listdir(os.path.join(args.data, str(box))):
         inputs = ModelInput(os.path.join(args.data, str(box), fire))
-        assert len(inputs.inputs) == 6
-        inputs_list.append(inputs)
+        if len(inputs.inputs) == 6:
+            inputs_list.append(inputs)
+        else:
+            logging.warning(f"Bands missing in {inputs.in_dir}. Skipping image set from this timestamp")
 
 random.shuffle(inputs_list)
 split = int(len(inputs_list) * args.ratio)
@@ -85,7 +96,7 @@ validation_dataset = CustomDataset(
     validation_list, transforms=transform, target_transforms=target_transform
 )
 
-train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 validation_loader = DataLoader(validation_dataset, batch_size=16, shuffle=True)
 
 best_vloss = 1_000_000
