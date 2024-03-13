@@ -48,7 +48,8 @@ elif args.model == "R2U":
 else:
     NETWORK = R2AttU_Net().to(DEVICE)
 
-OPTIMIZER = optim.Adam(NETWORK.parameters(), lr=0.0005)
+OPTIMIZER = optim.Adam(NETWORK.parameters(), lr=0.001)
+scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(OPTIMIZER, 'min')
 
 model_save_path = os.path.join(model_save_path, args.model)
 if not os.path.exists(model_save_path):
@@ -100,8 +101,7 @@ train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 validation_loader = DataLoader(validation_dataset, batch_size=16, shuffle=True)
 
 best_vloss = 1_000_000
-loss_fn = nn.MSELoss().to(DEVICE)
-dice_loss = DiceLoss().to(DEVICE)
+loss_fn = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(100.)).to(DEVICE)
 focal_loss = FocalLoss().to(DEVICE)
 ft_loss = FocalTverskyLoss().to(DEVICE)
 
@@ -112,6 +112,8 @@ ft_loss_t, ft_loss_v = [], []
 
 for epoch in tqdm(range(args.epochs)):
     running_loss = 0
+    running_floss_t = 0
+    running_ftloss_t = 0
 
     NETWORK.train()
 
@@ -129,10 +131,10 @@ for epoch in tqdm(range(args.epochs)):
         out_cut[out_cut >= 0.5] = 1.0
 
         fl_train = focal_loss(out_cut, labels)
-        f_loss_t.append(fl_train.item())
+        running_floss_t += fl_train.to("cpu").item()
 
         flt_train = ft_loss(out_cut, labels)
-        ft_loss_t.append(flt_train.item())
+        running_ftloss_t += flt_train.to("cpu").item()
 
         pbar.set_description(f"Loss -> {loss}")
         loss.backward()
@@ -144,8 +146,12 @@ for epoch in tqdm(range(args.epochs)):
         running_loss += loss.to("cpu").item()
 
     t_loss.append(running_loss)
+    f_loss_t.append(running_floss_t)
+    ft_loss_t.append(running_ftloss_t)
 
     running_vloss = 0.0
+    running_floss_v = 0.0
+    running_ftloss_v = 0.0
     # Set the model to evaluation mode, disabling dropout and using population
     # statistics for batch normalization.
     NETWORK.eval()
@@ -163,29 +169,32 @@ for epoch in tqdm(range(args.epochs)):
             out_cut[out_cut >= 0.5] = 1.0
 
             fl_val = focal_loss(out_cut, vlabels)
-            f_loss_v.append(fl_val.item())
+            running_floss_v += fl_val.to("cpu").item()
 
             flt_val = ft_loss(out_cut, vlabels)
-            ft_loss_v.append(flt_val.item())
+            running_ftloss_v += flt_val.to("cpu").item()
 
             running_vloss += vloss.to("cpu").item()
 
     avg_vloss = running_vloss / len(validation_loader)
+    scheduler.step(avg_vloss)
     v_loss.append(avg_vloss)
+    f_loss_v.append(running_floss_v)
+    ft_loss_v.append(running_ftloss_v)
 
     if avg_vloss < best_vloss:
         best_vloss = avg_vloss
         model_path = os.path.join(model_save_path, f"model{epoch + 1}_{avg_vloss}.pth")
         torch.save(NETWORK, model_path)
 
-xs = [x for x in range(len(v_loss))]
+xs = [x for x in range(args.epochs)]
 
 plt.plot(xs, t_loss, label="t_loss")
 plt.plot(xs, v_loss, "-.", label="v_loss")
-#plt.plot(xs, f_loss_t, label="f_loss_t")
-#plt.plot(xs, f_loss_v, label="f_loss_v")
-#plt.plot(xs, ft_loss_t, label="fl_loss_t")
-#plt.plot(xs, ft_loss_v, label="fl_loss_v")
+plt.plot(xs, f_loss_t, label="f_loss_t")
+plt.plot(xs, f_loss_v, label="f_loss_v")
+plt.plot(xs, ft_loss_t, label="fl_loss_t")
+plt.plot(xs, ft_loss_v, label="fl_loss_v")
 
 plt.xlabel("epoch")
 plt.ylabel("loss")
