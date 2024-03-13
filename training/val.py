@@ -29,7 +29,11 @@ transform = v2.Compose(
 for box in boxes:
     for fire in tqdm(os.listdir(os.path.join(args.data, str(box)))):
         inputs = ModelInput(os.path.join(args.data, str(box), fire))
-        assert len(inputs.inputs) == 6
+
+        if len(inputs.inputs) == 6:
+            inputs_list.append(inputs)
+        else:
+            print(f"Bands missing in {inputs.in_dir}. Skipping image set from this timestamp")
 
         dataset = CustomDataset([inputs], transforms=transform, target_transforms=transform)
         inputs, labels = next(iter(dataset))

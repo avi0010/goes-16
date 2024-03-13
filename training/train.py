@@ -96,7 +96,7 @@ validation_dataset = CustomDataset(
     validation_list, transforms=transform, target_transforms=target_transform
 )
 
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 validation_loader = DataLoader(validation_dataset, batch_size=16, shuffle=True)
 
 best_vloss = 1_000_000
@@ -182,10 +182,10 @@ xs = [x for x in range(len(v_loss))]
 
 plt.plot(xs, t_loss, label="t_loss")
 plt.plot(xs, v_loss, "-.", label="v_loss")
-plt.plot(xs, f_loss_t, label="f_loss_t")
-plt.plot(xs, f_loss_v, label="f_loss_v")
-plt.plot(xs, ft_loss_t, label="fl_loss_t")
-plt.plot(xs, ft_loss_v, label="fl_loss_v")
+#plt.plot(xs, f_loss_t, label="f_loss_t")
+#plt.plot(xs, f_loss_v, label="f_loss_v")
+#plt.plot(xs, ft_loss_t, label="fl_loss_t")
+#plt.plot(xs, ft_loss_v, label="fl_loss_v")
 
 plt.xlabel("epoch")
 plt.ylabel("loss")
