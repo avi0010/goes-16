@@ -87,8 +87,10 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 goes-16/inp
 **Model training**
 ```bash
 #training
+# use flags --memory="2g" --memory-swap="5g" to use swap memory (should be present in system)
+
 $	sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 training/train.py -d DATA -r 0.8 -e 50 -t 0.4 -m R2AttU
 
 #validation
-$	sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 training/val.py -d DATA/ -m training/models/R2U/model20_0.03494155779480934.pth
+$	sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 training/val.py -d DATA/ -m training/models/R2AttU/model5_0.19709928333759308.pth
 ```
