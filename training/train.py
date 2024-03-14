@@ -153,7 +153,7 @@ for epoch in tqdm(range(args.epochs)):
 
     t_loss.append(running_loss / len(train_loader))
     f_loss_t.append(running_floss_t / len(train_loader))
-    d_loss_t.append(running_floss_t / len(train_loader))
+    d_loss_t.append(running_dloss_t / len(train_loader))
     ft_loss_t.append(running_ftloss_t / len(train_loader))
 
     running_vloss = 0.0
