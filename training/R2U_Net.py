@@ -50,4 +50,4 @@ class R2U_Net(nn.Module):
 
         d1 = self.Conv_1x1(d2)
 
-        return torch.sigmoid(d1)
+        return d1

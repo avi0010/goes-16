@@ -104,9 +104,11 @@ best_vloss = 1_000_000
 loss_fn = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(100.)).to(DEVICE)
 focal_loss = FocalLoss().to(DEVICE)
 ft_loss = FocalTverskyLoss().to(DEVICE)
+dice_loss = DiceLoss().to(DEVICE)
 
 v_loss, t_loss       = [], []
 f_loss_t, f_loss_v   = [], []
+d_loss_t, d_loss_v   = [], []
 ft_loss_t, ft_loss_v = [], []
 
 
@@ -114,6 +116,7 @@ for epoch in tqdm(range(args.epochs)):
     running_loss = 0
     running_floss_t = 0
     running_ftloss_t = 0
+    running_dloss_t = 0
 
     NETWORK.train()
 
@@ -127,11 +130,14 @@ for epoch in tqdm(range(args.epochs)):
         loss = loss_fn(outputs, labels)
 
         out_cut = outputs.detach().clone()
-        out_cut[out_cut < 0.5] = 0.0
-        out_cut[out_cut >= 0.5] = 1.0
+        # out_cut[out_cut < 0.5] = 0.0
+        # out_cut[out_cut >= 0.5] = 1.0
 
         fl_train = focal_loss(out_cut, labels)
         running_floss_t += fl_train.to("cpu").item()
+
+        d_train = dice_loss(out_cut, labels)
+        running_dloss_t += d_train.to("cpu").item()
 
         flt_train = ft_loss(out_cut, labels)
         running_ftloss_t += flt_train.to("cpu").item()
@@ -147,11 +153,13 @@ for epoch in tqdm(range(args.epochs)):
 
     t_loss.append(running_loss)
     f_loss_t.append(running_floss_t)
+    d_loss_t.append(running_floss_t)
     ft_loss_t.append(running_ftloss_t)
 
     running_vloss = 0.0
     running_floss_v = 0.0
     running_ftloss_v = 0.0
+    running_dloss_v = 0.0
     # Set the model to evaluation mode, disabling dropout and using population
     # statistics for batch normalization.
     NETWORK.eval()
@@ -165,11 +173,14 @@ for epoch in tqdm(range(args.epochs)):
             vloss = loss_fn(voutputs, vlabels)
 
             out_cut = voutputs.detach().clone()
-            out_cut[out_cut < 0.5] = 0.0
-            out_cut[out_cut >= 0.5] = 1.0
+            # out_cut[out_cut < 0.5] = 0.0
+            # out_cut[out_cut >= 0.5] = 1.0
 
             fl_val = focal_loss(out_cut, vlabels)
             running_floss_v += fl_val.to("cpu").item()
+
+            d_val = dice_loss(out_cut, vlabels)
+            running_dloss_v += d_val.to("cpu").item()
 
             flt_val = ft_loss(out_cut, vlabels)
             running_ftloss_v += flt_val.to("cpu").item()
@@ -181,6 +192,7 @@ for epoch in tqdm(range(args.epochs)):
     v_loss.append(avg_vloss)
     f_loss_v.append(running_floss_v)
     ft_loss_v.append(running_ftloss_v)
+    d_loss_v.append(running_dloss_v)
 
     if avg_vloss < best_vloss:
         best_vloss = avg_vloss
@@ -195,6 +207,8 @@ plt.plot(xs, f_loss_t, label="f_loss_t")
 plt.plot(xs, f_loss_v, label="f_loss_v")
 plt.plot(xs, ft_loss_t, label="fl_loss_t")
 plt.plot(xs, ft_loss_v, label="fl_loss_v")
+plt.plot(xs, d_loss_t, label="d_loss_t")
+plt.plot(xs, d_loss_v, label="d_loss_v")
 
 plt.xlabel("epoch")
 plt.ylabel("loss")
