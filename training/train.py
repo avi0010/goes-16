@@ -48,7 +48,7 @@ elif args.model == "R2U":
 else:
     NETWORK = R2AttU_Net().to(DEVICE)
 
-OPTIMIZER = optim.Adam(NETWORK.parameters(), lr=0.001)
+OPTIMIZER = optim.Adam(NETWORK.parameters(), lr=0.0005)
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(OPTIMIZER, 'min')
 
 model_save_path = os.path.join(model_save_path, args.model)
@@ -98,7 +98,7 @@ validation_dataset = CustomDataset(
 )
 
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
-validation_loader = DataLoader(validation_dataset, batch_size=16, shuffle=True)
+validation_loader = DataLoader(validation_dataset, batch_size=64, shuffle=True)
 
 best_vloss = 1_000_000
 loss_fn = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(100.)).to(DEVICE)
@@ -151,10 +151,10 @@ for epoch in tqdm(range(args.epochs)):
         # Gather data and report
         running_loss += loss.to("cpu").item()
 
-    t_loss.append(running_loss)
-    f_loss_t.append(running_floss_t)
-    d_loss_t.append(running_floss_t)
-    ft_loss_t.append(running_ftloss_t)
+    t_loss.append(running_loss / len(train_loader))
+    f_loss_t.append(running_floss_t / len(train_loader))
+    d_loss_t.append(running_floss_t / len(train_loader))
+    ft_loss_t.append(running_ftloss_t / len(train_loader))
 
     running_vloss = 0.0
     running_floss_v = 0.0
@@ -190,9 +190,9 @@ for epoch in tqdm(range(args.epochs)):
     avg_vloss = running_vloss / len(validation_loader)
     scheduler.step(avg_vloss)
     v_loss.append(avg_vloss)
-    f_loss_v.append(running_floss_v)
-    ft_loss_v.append(running_ftloss_v)
-    d_loss_v.append(running_dloss_v)
+    f_loss_v.append(running_floss_v/ len(validation_loader))
+    ft_loss_v.append(running_ftloss_v/ len(validation_loader))
+    d_loss_v.append(running_dloss_v/ len(validation_loader))
 
     if avg_vloss < best_vloss:
         best_vloss = avg_vloss
