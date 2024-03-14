@@ -165,6 +165,10 @@ class CustomDataset(Dataset):
             input_images = torch.concatenate(
                 (
                     band_7,
+                    band_12,
+                    band_13,
+                    band_14,
+                    band_15,
                     band_12 - band_7,
                     band_13 - band_7,
                     band_14 - band_7,

@@ -5,7 +5,7 @@ from model_utils import RRCNN_block, UpConv
 
 
 class R2U_Net(nn.Module):
-    def __init__(self, img_ch=6, output_ch=1, t=2):
+    def __init__(self, img_ch=10, output_ch=1, t=2):
         super(R2U_Net, self).__init__()
 
         self.Maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
