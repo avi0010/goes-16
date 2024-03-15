@@ -72,17 +72,21 @@ class VGGBlock(nn.Module):
         super().__init__()
         self.relu = nn.ReLU(inplace=True)
         self.conv1 = nn.Conv2d(in_channels, middle_channels, 3, padding=1)
+        self.dropout1 = nn.Dropout2d(0.25)
         self.bn1 = nn.BatchNorm2d(middle_channels)
         self.conv2 = nn.Conv2d(middle_channels, out_channels, 3, padding=1)
+        self.dropout2 = nn.Dropout2d(0.5)
         self.bn2 = nn.BatchNorm2d(out_channels)
 
     def forward(self, x):
         out = self.conv1(x)
         out = self.bn1(out)
+        out = self.dropout1(x)
         out = self.relu(out)
 
         out = self.conv2(out)
         out = self.bn2(out)
+        out = self.dropout2(x)
         out = self.relu(out)
         return out
 
