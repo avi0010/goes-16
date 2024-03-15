@@ -215,8 +215,8 @@ class InputFeatures:
                 centre_x, centre_y = self.get_center_pixel(mask_file)
 
                 # Finding offset by moving the center pixels to top-left according to image size
-                x_random = int(random.uniform(-1 * (self.win_size // 3), self.win_size // 3))
-                y_random = int(random.uniform(-1 * (self.win_size // 3), self.win_size // 3))
+                x_random = int(random.uniform(-1 * (self.win_size // 2), self.win_size // 2))
+                y_random = int(random.uniform(-1 * (self.win_size // 2), self.win_size // 2))
                 x_offset = centre_y - self.win_size // 2 + x_random
                 y_offset = centre_x - self.win_size // 2 + y_random
 
