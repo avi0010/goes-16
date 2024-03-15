@@ -132,6 +132,9 @@ class InputFeatures:
                            self.datetime_images[tif_file.date].append(file)
 
         for box in self.boxes:
+            if not os.path.exists(f"{self.save_dir}/{box.id}"):
+                os.mkdir(f"{self.save_dir}/{box.id}")
+
             for date in self.datetime_images.keys():
                 if box.start < date and date < box.end:
                     os.mkdir(f"{self.save_dir}/{box.id}/{str(date)}")
