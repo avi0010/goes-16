@@ -1,9 +1,26 @@
 import json
 import pyproj
-from shapely.geometry import shape, mapping
+from shapely import area
+from shapely.geometry import shape, mapping, Polygon, MultiPolygon
 from shapely.ops import transform
+import math
 
 def reproject_geojson(geojson_path, src_crs, dst_crs, output_path):
+
+    def get_coords_from_polygon(shape):
+        coords = set()  
+
+        if shape.geom_type == 'Polygon':
+            coords.update(shape.exterior.coords[:-1])
+            for linearring in shape.interiors:
+                coords.update(linearring.coords[:-1])
+        elif shape.geom_type == 'MultiPolygon':
+            for polygon in shape.geoms:
+                coords.update(get_coords_from_polygon(polygon)) 
+
+        return coords
+
+
     """
     Reproject a GeoJSON file from the source CRS to the destination CRS.
 
@@ -46,8 +63,20 @@ def reproject_geojson(geojson_path, src_crs, dst_crs, output_path):
             'geometry': mapping(reprojected_geom)
         }
 
-        feature_layer['features'].append(reprojected_feature)
+        geom = shape(reprojected_feature['geometry'])
+        
+        coordinates = get_coords_from_polygon(geom)
+        invalid_coordinates = False
+        for coordinate in coordinates:
+            if math.isinf(coordinate[0]) or math.isinf(coordinate[1]):
+                invalid_coordinates = True
+                break
+        if invalid_coordinates:
+            continue                
 
+        feature_layer['features'].append(reprojected_feature)
+        
+    print(len(feature_layer['features']))
     # Write reprojected GeoJSON to file
     with open(output_path, 'w') as f:
         json.dump(feature_layer, f)
@@ -56,4 +85,4 @@ def reproject_geojson(geojson_path, src_crs, dst_crs, output_path):
 src_crs = 'EPSG:4326'  # Source CRS
 dst_crs = 'ESRI:102498'  # Destination CRS
 
-reproject_geojson(geojson_path='./files/NIFC_2023_Wildfire_Perimeters.json', src_crs=src_crs, dst_crs=dst_crs, output_path='./files/reprojected_NIFC_2023_Wildfire_Perimeters.json.json')
+reproject_geojson(geojson_path='./files/WFIGS_Interagency_Perimeters_6317078473007695789.geojson', src_crs=src_crs, dst_crs=dst_crs, output_path='./files/WFIGS_Interagency_Perimeters.json')
