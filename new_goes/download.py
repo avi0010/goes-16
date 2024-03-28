@@ -100,7 +100,7 @@ class Downloader:
 
             hour = list(map(lambda x: int(x.split("/")[-1]), database_hour))
 
-            for hr in (h_bar := tqdm([hour[0]], leave=False, position=2)):
+            for hr in (h_bar := tqdm(hour, leave=False, position=2)):
                 h_bar.set_postfix_str(f"hr:{str(hr)}")
                 h_bar.set_description_str(f"param:{param}")
                 files = self.fs.ls(
