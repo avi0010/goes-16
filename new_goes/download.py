@@ -1,16 +1,18 @@
+import argparse
+import copy
 import json
 import logging
 import os
 import time
 from datetime import datetime, timedelta
 from typing import List
-import argparse
 
 import botocore
-import copy
 import s3fs
-from osgeo import ogr
 from tqdm import tqdm
+
+import preprocess
+from fire import Fire
 
 logging.basicConfig(
     level=logging.INFO,
@@ -21,44 +23,58 @@ logging.basicConfig(
 )
 
 
-class Fire:
-    def __init__(
-        self, id: int, area: float, start: datetime, end: datetime, geo: ogr.Geometry
-    ) -> None:
-        self.id = id
-        self.area_acre = area
-        self.start_date = start
-        self.end_date = end
-        self.geometry = geo
-
-    @classmethod
-    def parse(cls, fire):
-        properties = copy.copy(fire["properties"])
-        id = properties["poly_SourceOID"]
-        area_acre = properties["poly_GISAcres"]
-
-        fireDisoveryDateTime = properties["attr_FireDiscoveryDateTime"]
-
-        fireControlDateTime = properties["attr_FireOutDateTime"]
-
-        format_string = "%a, %d %b %Y %H:%M:%S %Z"
-        start_date = datetime.strptime(fireDisoveryDateTime, format_string)
-        end_date = datetime.strptime(fireControlDateTime, format_string)
-        geometry = ogr.CreateGeometryFromJson(json.dumps(fire["geometry"]))
-        return cls(id, area_acre, start_date, end_date, geometry)
+def temp_download():
+    return "./temp/2023/185/"
 
 
 class Downloader:
+    """
+    Downloads data for fire events.
+
+    Attributes
+    ----------
+    fires : List[Fire]
+        List of Fire objects representing fire events.
+    save_dir : str
+        Directory path to save downloaded data.
+    params : List[str]
+        List of parameters for data download.
+    """
+
     def __init__(self, fires: List[Fire], save_dir: str, params: List[str]) -> None:
+        """
+        Initialize Downloader object.
+
+        Parameters
+        ----------
+        fires : List[Fire]
+            List of Fire objects representing fire events.
+        save_dir : str
+            Directory path to save downloaded data.
+        params : List[str]
+            List of parameters for data download.
+        """
+
         self.fires = fires
         self.fs = s3fs.S3FileSystem(anon=True)
         self.root_dir = f"{save_dir}"
         self.params = params
         self.max_retries = 5
+        self.patch_file = os.path.join(self.root_dir, "patches")
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
+        # if not os.path.exists(self.patch_file):
+        #     os.mkdir(self.patch_file)
+
+    def temp(self):
+        day_path = temp_download()
+        preprocess.process_day(day_path, self.fires)
 
     def download(self):
+        """
+        Downloads data for fire events.
+        """
+
         for fire in (tbar := tqdm(self.fires, position=0)):
             logging.info(f"Starting download for fire: {fire.id}")
             tbar.set_description_str(f"fire: {fire.id}")
@@ -72,9 +88,25 @@ class Downloader:
                 pbar.set_postfix_str(f"date: {str(date)}")
                 if date.month == 7:
                     # WARN:Only August most change for dataset generation
-                    self._download_day(date)
+                    # day_path = self._download_day(date)
+                    day_path = temp_download()
+                    if day_path is not None:
+                        preprocess.process_day(day_path, self.fires)
 
-    def _download_day(self, day: datetime):
+    def _download_day(self, day: datetime) -> str | None:
+        """
+        Download data for a specific day.
+
+        Parameters
+        ----------
+        day : datetime
+            Date for which to download data.
+
+        Returns
+        -------
+        str or None
+            Path to the downloaded data directory if successful, otherwise None.
+        """
         logging.info(f"Starting download for date: {day}")
 
         year_path = os.path.join(self.root_dir, str(day.year))
@@ -86,7 +118,7 @@ class Downloader:
         ).days + 1
         day_path = os.path.join(year_path, str(days_since_year_start))
         if os.path.exists(day_path):
-            return
+            return None
         os.mkdir(day_path)
 
         for param in self.params:
@@ -139,6 +171,36 @@ class Downloader:
                     raise Exception(
                         f"Failed to download file after {self.max_retries} retries."
                     )
+        return day_path
+
+
+def read_json_file(path: str) -> List[Fire]:
+    """
+    Read fire data from a JSON file.
+
+    Parameters
+    ----------
+    path : str
+        Path to the JSON file containing fire data.
+
+    Returns
+    -------
+    List[Fire]
+        A list of Fire objects parsed from the JSON file.
+    """
+
+    fires: List[Fire] = []
+    with open(path) as f:
+        data = json.load(f)
+        for fire_data in data["features"]:
+            area = fire_data["properties"]["poly_GISAcres"]
+            start = fire_data["properties"]["attr_FireDiscoveryDateTime"]
+            end = fire_data["properties"]["attr_FireOutDateTime"]
+            if area < 10.0 or start is None or end is None:
+                continue
+            fire = Fire.parse(fire_data)
+            fires.append(fire)
+    return fires
 
 
 if __name__ == "__main__":
@@ -150,18 +212,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    fires = []
-
-    with open(args.json) as f:
-        data = json.load(f)
-        for fire_data in data["features"]:
-            area = fire_data["properties"]["poly_GISAcres"]
-            start = fire_data["properties"]["attr_FireDiscoveryDateTime"]
-            end = fire_data["properties"]["attr_FireOutDateTime"]
-            if area < 10.0 or start is None or end is None:
-                continue
-            fire = Fire.parse(fire_data)
-            fires.append(fire)
+    fires = read_json_file(args.json)
 
     down = Downloader(fires, args.save, args.params)
-    down.download()
+    down.temp()
