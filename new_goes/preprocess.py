@@ -40,14 +40,13 @@ def parse_filename(filename: str) -> dict:
     }
 
 
-def __process_output(fires:List[Fire], day_path:str) -> None:
+def process_output(fires:List[Fire], day_path:str) -> str:
     date_split = day_path.split("/")
-    date = datetime(year=int(date_split[-3]), month=1, day=1) + timedelta(days=int(date_split[-2]))
+    date = datetime(year=int(date_split[-2]), month=1, day=1) + timedelta(days=int(date_split[-1]))
     filtered_fires = list(filter(lambda fire: fire.start_date <= date <= fire.end_date, fires))
 
     multipolygon = ogr.Geometry(ogr.wkbMultiPolygon)
     for fire in filtered_fires:
-        print(fire.id, fire.area_acre)
         if fire.geometry.GetGeometryName() == "MULTIPOLYGON":
             for i in range(fire.geometry.GetGeometryCount()):
                 multipolygon.AddGeometry(fire.geometry.GetGeometryRef(i))
@@ -92,45 +91,40 @@ def __process_output(fires:List[Fire], day_path:str) -> None:
         target_layer, [1], mem_layer, burn_values=[1], options=["ALL_TOUCHED=TRUE"]
     )
 
-    gdal.Translate(os.path.join(day_path, "output.tiff"), target_layer, format="GTiff")
+    save_location = os.path.join(day_path, "output.tiff")
+    gdal.Translate(save_location, target_layer, format="GTiff")
+
+    return save_location
 
 
-def __convert_to_tif(file_path: str):
-    layer = gdal.Open("NETCDF:{0}:{1}".format(file_path, "Rad"))
+def convert_to_tiff(file_path: str):
+    layer = gdal.Open(file_path)
     options = gdal.TranslateOptions(format="GTiff",
                                     width=10000,
                                     height=6000)
-    file_name = file_path.replace('.nc', '.tif')
+    file_name = file_path.replace('.tiff', '.tif')
     gdal.Translate(file_name, layer, options=options)
     os.remove(file_path)
 
     return file_name
 
-def process_day(day_path: str, fires:List[Fire]):
-    __process_output(fires, day_path)
-    # for hour in os.listdir(day_path):
-    #     for file in os.listdir(os.path.join(day_path, hour)):
-            # file_path = os.path.join(day_path, hour, file)
-            # file_path = __convert_to_tif(file_path)
-            # __process_band_file(file_path)
 
-
-def __process_band_file(file_path: str):
+def process_band_file(file_path: str):
     file = parse_filename(file_path.split("/")[-1])
 
     if file["product"] != "RadC":
         raise NotImplementedError
 
     if file["channel"] <= 6:
-        __process_Reflectance(file_path)
+        file_path = process_reflectance(file_path)
 
     else:
-        __process_brightness_temperatures(file_path)
+        file_path = process_brightness_temperature(file_path)
 
-    return
+    return file_path
 
 
-def __process_Reflectance(file_path: str, band="Rad"):
+def process_reflectance(file_path: str, band="Rad"):
     raster_layer = gdal.Open("NETCDF:{0}:{1}".format(file_path, band))
     ds = Dataset(file_path)
 
@@ -138,7 +132,8 @@ def __process_Reflectance(file_path: str, band="Rad"):
     Field = kappa * ds.variables["Rad"][:]
 
     os.remove(file_path)
-    driver = gdal.GetDriverByName("netCDF")
+    file_path = file_path.replace(".nc", ".tiff")
+    driver = gdal.GetDriverByName("Gtiff")
     output_dataset = driver.Create(
         file_path,
         raster_layer.RasterXSize,
@@ -159,10 +154,10 @@ def __process_Reflectance(file_path: str, band="Rad"):
     output_dataset = None
     Dataset.close(ds)
 
-    return
+    return file_path
 
 
-def __process_brightness_temperatures(file_path: str, band="Rad"):
+def process_brightness_temperature(file_path: str, band="Rad"):
     raster_layer = gdal.Open("NETCDF:{0}:{1}".format(file_path, band))
     ds = Dataset(file_path)
 
@@ -175,7 +170,7 @@ def __process_brightness_temperatures(file_path: str, band="Rad"):
     ) / planck_bc2
 
     os.remove(file_path)
-
+    file_path = file_path.replace(".nc", ".tiff")
     driver = gdal.GetDriverByName("netCDF")
     output_dataset = driver.Create(
         file_path,
@@ -197,4 +192,4 @@ def __process_brightness_temperatures(file_path: str, band="Rad"):
     output_dataset = None
     Dataset.close(ds)
 
-    return
+    return file_path

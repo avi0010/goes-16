@@ -1,14 +1,19 @@
 import argparse
-import copy
 import json
 import logging
 import os
+import random
 import time
+from collections import defaultdict
 from datetime import datetime, timedelta
-from typing import List
+from typing import Dict, List
+from tqdm import tqdm
 
 import botocore
+import numpy as np
 import s3fs
+import skimage
+from osgeo import gdal, ogr, osr
 from tqdm import tqdm
 
 import preprocess
@@ -21,10 +26,6 @@ logging.basicConfig(
     filename="goes_downloader.log",
     filemode="w",
 )
-
-
-def temp_download():
-    return "./temp/2023/185/"
 
 
 class Downloader:
@@ -61,14 +62,70 @@ class Downloader:
         self.params = params
         self.max_retries = 5
         self.patch_file = os.path.join(self.root_dir, "patches")
+        self.patch = 0
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
-        # if not os.path.exists(self.patch_file):
-        #     os.mkdir(self.patch_file)
+        if not os.path.exists(self.patch_file):
+            os.mkdir(self.patch_file)
 
-    def temp(self):
-        day_path = temp_download()
-        preprocess.process_day(day_path, self.fires)
+
+    def __datetime_dictionary(self, day_path: str) -> Dict[datetime, List[str]]:
+        dict = defaultdict(list)
+        for hour in os.listdir(day_path):
+            if not os.path.isdir(os.path.join(day_path, hour)):
+                continue
+            for file in os.listdir(os.path.join(day_path, hour)):
+                f = preprocess.parse_filename(file)
+                dict[f["start_time"]].append(os.path.join(day_path, hour, file))
+        return dict
+
+    def process_contours(self, contours, day_path:str, win_size=32):
+        datetime_dict = self.__datetime_dictionary(day_path)
+        for date, files in datetime_dict.items():
+            for i, contour in enumerate(contours):
+                self.patch += 1
+                patch_dir = os.path.join(self.patch_file, str(self.patch))
+                os.mkdir(patch_dir)
+
+                centre_x, centre_y = np.mean(contour, axis=0).astype(np.uint64)
+                x_random = int(random.uniform(-1 * (win_size // 2), win_size // 2))
+                y_random = int(random.uniform(-1 * (win_size // 2), win_size // 2))
+                x_offset = centre_y - win_size // 2 + x_random
+                y_offset = centre_x - win_size // 2 + y_random
+
+                window = (x_offset, y_offset, win_size, win_size)
+
+                for file in files:
+                    file_path = os.path.join(patch_dir, f"{file.split('/')[-1]}")
+                    gdal.Translate(file_path, file, srcWin=window)
+                    # preprocess.process_band_file(file_path)
+
+                output_tiff = os.path.join(day_path, "output.tiff")
+                gdal.Translate(os.path.join(patch_dir, "output.tiff"),output_tiff , srcWin=window)
+
+    
+
+    def process_day(self, day_path: str, win_size=64):
+
+        for hour in os.listdir(day_path):
+            for file in tqdm(os.listdir(os.path.join(day_path, hour))):
+                file_path = os.path.join(day_path, hour, file)
+                file_path = preprocess.process_band_file(file_path)
+                file_path = preprocess.convert_to_tiff(file_path)
+
+        output_location = preprocess.process_output(fires, day_path)
+        ds = gdal.Open(output_location)
+        myarray = np.array(ds.GetRasterBand(1).ReadAsArray())
+        contours = skimage.measure.find_contours(myarray)
+        self.process_contours(contours, day_path)
+
+    def __day_cleanup(self, day_path:str):
+        os.remove(os.path.join(day_path, "output.tiff"))
+        for hour in os.listdir(day_path):
+            for file in tqdm(os.listdir(os.path.join(day_path, hour))):
+                os.remove(os.path.join(day_path, hour, file))
+            os.rmdir(os.path.join(day_path, hour))
+        os.rmdir(os.path.join(day_path))
 
     def download(self):
         """
@@ -88,10 +145,11 @@ class Downloader:
                 pbar.set_postfix_str(f"date: {str(date)}")
                 if date.month == 7:
                     # WARN:Only August most change for dataset generation
-                    # day_path = self._download_day(date)
-                    day_path = temp_download()
+                    day_path = self._download_day(date)
+                    # day_path = temp_download()
                     if day_path is not None:
-                        preprocess.process_day(day_path, self.fires)
+                        self.process_day(day_path)
+                        self.__day_cleanup(day_path)
 
     def _download_day(self, day: datetime) -> str | None:
         """
@@ -215,4 +273,4 @@ if __name__ == "__main__":
     fires = read_json_file(args.json)
 
     down = Downloader(fires, args.save, args.params)
-    down.temp()
+    down.download()
