@@ -105,7 +105,7 @@ class Downloader:
 
     
 
-    def process_day(self, day_path: str, win_size=64):
+    def process_day(self, day_path: str):
 
         for hour in os.listdir(day_path):
             for file in tqdm(os.listdir(os.path.join(day_path, hour))):
@@ -113,7 +113,7 @@ class Downloader:
                 file_path = preprocess.process_band_file(file_path)
                 file_path = preprocess.convert_to_tiff(file_path)
 
-        output_location = preprocess.process_output(fires, day_path)
+        output_location = preprocess.process_output(self.fires, day_path)
         ds = gdal.Open(output_location)
         myarray = np.array(ds.GetRasterBand(1).ReadAsArray())
         contours = skimage.measure.find_contours(myarray)
