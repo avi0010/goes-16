@@ -12,3 +12,4 @@ netCDF4
 affine
 tqdm
 matplotlib
+scikit-image
