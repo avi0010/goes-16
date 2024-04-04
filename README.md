@@ -101,3 +101,15 @@ $	sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 training/val.
 #Download patches
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 new_goes/download.py -s DATA -j files/Filtered_WFIGS_Interagency_Perimeters.json -p ABI-L1b-RadC
 ```
+
+**Analysis**
+```bash
+#Download patches
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 new_goes/download_analytics.py
+
+#Pixel Analysis
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 new_goes/pixel_analysis.py
+
+#Colormap Analysis
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 new_goes/colormap_analysis.py
+```
