@@ -39,7 +39,7 @@ if __name__ == "__main__":
         if fire.id in SMALL_FIRES_ID:
             small_fires.append(fire)
 
-    Analytics_Downloader(very_large_fires, "/run/media/aveekal/USB STICK/analytics", "Very Large", ["ABI-L1b-RadC"])
+    Analytics_Downloader(very_large_fires, "analytics", "Very Large", ["ABI-L1b-RadC"])
     Analytics_Downloader(large_fires, "analytics", "Large", ["ABI-L1b-RadC"])
     Analytics_Downloader(medium_fires, "analytics", "Medium", ["ABI-L1b-RadC"])
     Analytics_Downloader(small_fires, "analytics", "Small", ["ABI-L1b-RadC"])
