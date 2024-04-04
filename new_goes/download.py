@@ -62,7 +62,6 @@ class Downloader:
         self.params = params
         self.max_retries = 5
         self.patch_file = os.path.join(self.root_dir, "patches")
-        self.patch = 0
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
         if not os.path.exists(self.patch_file):
@@ -79,12 +78,19 @@ class Downloader:
                 dict[f["start_time"]].append(os.path.join(day_path, hour, file))
         return dict
 
-    def process_contours(self, contours, day_path:str, win_size=32):
+    def process_contours(self, contours, day_path:str, fires:List[Fire], win_size=32):
         datetime_dict = self.__datetime_dictionary(day_path)
         for date, files in datetime_dict.items():
             for i, contour in enumerate(contours):
-                self.patch += 1
-                patch_dir = os.path.join(self.patch_file, str(self.patch))
+                if len(fires) == 1:
+                    fire_id_path = os.path.join(self.patch_file, str(fires[0].id))
+                    if not os.path.exists(fire_id_path):
+                        os.mkdir(fire_id_path)
+                    patch_dir = os.path.join(fire_id_path, str(date))
+
+                else:
+                    patch_dir = os.path.join(self.patch_file, str(date))
+
                 os.mkdir(patch_dir)
 
                 centre_x, centre_y = np.mean(contour, axis=0).astype(np.uint64)
@@ -105,7 +111,12 @@ class Downloader:
 
     
 
-    def process_day(self, day_path: str):
+    def process_day(self, day_path: str, curr_fire:Fire|None=None):
+
+        if curr_fire is None:
+            fires = self.fires
+        else:
+            fires = [curr_fire]
 
         for hour in os.listdir(day_path):
             for file in tqdm(os.listdir(os.path.join(day_path, hour))):
@@ -113,11 +124,11 @@ class Downloader:
                 file_path = preprocess.process_band_file(file_path)
                 file_path = preprocess.convert_to_tiff(file_path)
 
-        output_location = preprocess.process_output(self.fires, day_path)
+        output_location = preprocess.process_output(fires, day_path)
         ds = gdal.Open(output_location)
         myarray = np.array(ds.GetRasterBand(1).ReadAsArray())
         contours = skimage.measure.find_contours(myarray)
-        self.process_contours(contours, day_path)
+        self.process_contours(contours, day_path, fires)
 
     def __day_cleanup(self, day_path:str):
         os.remove(os.path.join(day_path, "output.tiff"))
@@ -127,7 +138,7 @@ class Downloader:
             os.rmdir(os.path.join(day_path, hour))
         os.rmdir(os.path.join(day_path))
 
-    def download(self):
+    def download(self, raster_curr_fire:bool=False):
         """
         Downloads data for fire events.
         """
@@ -143,13 +154,16 @@ class Downloader:
                 dates = dates[:2]
             for date in (pbar := tqdm(dates, position=1, leave=False)):
                 pbar.set_postfix_str(f"date: {str(date)}")
-                if date.month == 7:
+                # if date.month == 7:
                     # WARN:Only August most change for dataset generation
-                    day_path = self._download_day(date)
-                    # day_path = temp_download()
-                    if day_path is not None:
+                day_path = self._download_day(date)
+                # day_path = temp_download()
+                if day_path is not None:
+                    if raster_curr_fire:
+                        self.process_day(day_path, fire)
+                    else:
                         self.process_day(day_path)
-                        self.__day_cleanup(day_path)
+                    self.__day_cleanup(day_path)
 
     def _download_day(self, day: datetime) -> str | None:
         """
@@ -190,7 +204,7 @@ class Downloader:
 
             hour = list(map(lambda x: int(x.split("/")[-1]), database_hour))
 
-            for hr in (h_bar := tqdm(hour, leave=False, position=2)):
+            for hr in (h_bar := tqdm([hour[18]], leave=False, position=2)):
                 h_bar.set_postfix_str(f"hr:{str(hr)}")
                 h_bar.set_description_str(f"param:{param}")
                 files = self.fs.ls(
