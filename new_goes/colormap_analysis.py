@@ -1,17 +1,19 @@
+import argparse
 import os
-from PIL import Image
+
 import matplotlib.pyplot as plt
 import numpy as np
-import analysis_utils
+from PIL import Image
 
+import analysis_utils
 import preprocess
 
-GRID_WIDTH = 4
-GRID_HEIGHT = 4
+GRID_WIDTH = 16
+GRID_HEIGHT = 1
 OFFSET = 1
 IMG_WIDTH = 32
 TOTAL_WIDTH = (IMG_WIDTH + OFFSET) * GRID_WIDTH - OFFSET
-cm = plt.get_cmap('viridis')
+cm = plt.get_cmap("viridis")
 
 
 def band_file_dict(date_path: str):
@@ -28,21 +30,30 @@ def band_file_dict(date_path: str):
 
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path", required=True)
+    args = parser.parse_args()
+
     save_dir = "colormap"
     fire_type = ""
 
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
 
-    patch_path = "/run/media/aveekal/USB STICK/analytics/Very Large/patches/"
+    patch_path = args.path
 
     for fire_id in os.listdir(patch_path):
         fire_id_path = os.path.join(save_dir, fire_id)
-        if not os.path.exists(fire_id_path):
-            os.mkdir(fire_id_path)
+        fire_id_path = os.listdir(os.path.join(patch_path, fire_id))
 
-        for date in os.listdir(os.path.join(patch_path, fire_id)):
-            result_image = Image.new("RGB", (TOTAL_WIDTH, TOTAL_WIDTH), color="black")
+        final_image = Image.new(
+            "RGB",
+            (TOTAL_WIDTH, (IMG_WIDTH + OFFSET) * len(fire_id_path) - OFFSET),
+            color="black",
+        )
+
+        for x, date in enumerate(sorted(fire_id_path)):
+            result_image = Image.new("RGB", (TOTAL_WIDTH, IMG_WIDTH), color="black")
             date_path = os.path.join(patch_path, fire_id, date)
 
             dict = band_file_dict(date_path)
@@ -60,8 +71,10 @@ if __name__ == "__main__":
                     im = np.uint8(cm(im) * 255)
                     im = Image.fromarray(im)
 
-                    result_image.paste(im, (j * (IMG_WIDTH + OFFSET), i*(IMG_WIDTH + OFFSET)))
+                    result_image.paste(
+                        im, (j * (IMG_WIDTH + OFFSET), i * (IMG_WIDTH + OFFSET))
+                    )
 
-            result_image.save("colormap.png")
-            break
-        break
+            final_image.paste(result_image, (0, x * (IMG_WIDTH + OFFSET)))
+
+        final_image.save(f"{save_dir}/{fire_id}.png")

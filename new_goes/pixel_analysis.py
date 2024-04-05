@@ -1,3 +1,4 @@
+import argparse
 import os
 from collections import defaultdict
 
@@ -9,10 +10,14 @@ import analysis_utils
 import preprocess
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-p", "--path", required=True)
+    args = parser.parse_args()
+
     pos_band_value_dict = defaultdict(list)
     neg_band_value_dict = defaultdict(list)
 
-    patch_path = "/run/media/aveekal/USB STICK/analytics/Very Large/patches/"
+    patch_path = args.path
 
     for fire_id in os.listdir(patch_path):
         for date in os.listdir(os.path.join(patch_path, fire_id)):
