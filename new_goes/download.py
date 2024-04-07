@@ -8,6 +8,7 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, List
 from tqdm import tqdm
+from tqdm.contrib.concurrent import thread_map
 
 import botocore
 import numpy as np
@@ -117,6 +118,11 @@ class Downloader:
 
     
 
+    def __process_file(self, file_path: str):
+        file_path = preprocess.process_band_file(file_path)
+        file_path = preprocess.convert_to_tiff(file_path)
+
+
     def process_day(self, day_path: str, curr_fire:Fire|None=None):
 
         if curr_fire is None:
@@ -124,11 +130,15 @@ class Downloader:
         else:
             fires = [curr_fire]
 
+        def process_hour(hour):
+            hour_path = os.path.join(day_path, hour)
+            files = os.listdir(hour_path)
+            file_paths = [os.path.join(hour_path, file) for file in files]
+
+            thread_map(self.__process_file, file_paths)
+
         for hour in os.listdir(day_path):
-            for file in tqdm(os.listdir(os.path.join(day_path, hour))):
-                file_path = os.path.join(day_path, hour, file)
-                file_path = preprocess.process_band_file(file_path)
-                file_path = preprocess.convert_to_tiff(file_path)
+            process_hour(hour)
 
         output_location = preprocess.process_output(fires, day_path)
         ds = gdal.Open(output_location)

@@ -152,7 +152,6 @@ def process_reflectance(file_path: str, band="Rad"):
 
     raster_layer = None
     output_dataset = None
-    Dataset.close(ds)
 
     return file_path
 
@@ -190,6 +189,5 @@ def process_brightness_temperature(file_path: str, band="Rad"):
 
     raster_layer = None
     output_dataset = None
-    Dataset.close(ds)
 
     return file_path
