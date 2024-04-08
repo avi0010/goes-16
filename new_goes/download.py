@@ -69,6 +69,14 @@ class Downloader:
             os.mkdir(self.patch_file)
 
 
+    def __datetime_dictionary_list(self, day_bands:List[str]) -> Dict[datetime, List[str]]:
+        dict = defaultdict(list)
+        for band in day_bands:
+            f = preprocess.parse_filename(band.split("/")[-1])
+            dict[f["start_time"]].append(band)
+
+        return dict
+        
     def __datetime_dictionary(self, day_path: str) -> Dict[datetime, List[str]]:
         dict = defaultdict(list)
         for hour in os.listdir(day_path):
@@ -236,7 +244,9 @@ class Downloader:
                         logging.debug(
                             f"Downloading files- {files}\n{hour_download_dir}"
                         )
-                        self.fs.get(files, f"{hour_download_dir}/")
+                        files_dict = self.__datetime_dictionary_list(files)
+                        file_timestamp = list(files_dict.keys())[0]
+                        self.fs.get(files_dict[file_timestamp], f"{hour_download_dir}/")
                         logging.info("Files have been downloaded")
                         break
                     except botocore.exceptions.ClientError as e:
