@@ -8,13 +8,26 @@ from PIL import Image
 import analysis_utils
 import preprocess
 
-GRID_WIDTH = 16
+GRID_WIDTH = 17
 GRID_HEIGHT = 1
 OFFSET = 1
 IMG_WIDTH = 32
 TOTAL_WIDTH = (IMG_WIDTH + OFFSET) * GRID_WIDTH - OFFSET
 cm = plt.get_cmap("viridis")
 
+def rgb_image(dict, date_path):
+    gamma = 2.2
+    B = np.array(Image.open(os.path.join(date_path, dict[1])))
+    R = np.array(Image.open(os.path.join(date_path, dict[2])))
+    G = np.array(Image.open(os.path.join(date_path, dict[3])))
+
+    B = np.power(B, 1/gamma)
+    G = np.power(G, 1/gamma)
+    R = np.power(R, 1/gamma)
+
+    G_true = 0.45 * R + 0.1 * G + 0.45 * B
+    RGB = (np.dstack([R, G_true, B]) * 255).astype(np.uint8)
+    return Image.fromarray(RGB)
 
 def band_file_dict(date_path: str):
     dict = {}
@@ -57,10 +70,14 @@ if __name__ == "__main__":
             date_path = os.path.join(patch_path, fire_id, date)
 
             dict = band_file_dict(date_path)
+            rgb = rgb_image(dict, date_path)
+            result_image.paste(rgb, (0,0))
 
+            if len(dict) != 16:
+                print(date_path)
             for i in range(GRID_HEIGHT):
-                for j in range(GRID_WIDTH):
-                    img_band = dict[i * GRID_WIDTH + j + 1]
+                for j in range(1, GRID_WIDTH):
+                    img_band = dict[i * GRID_WIDTH + j]
                     img_path = os.path.join(date_path, img_band)
 
                     f = preprocess.parse_filename(img_path.split("/")[-1])
