@@ -292,7 +292,7 @@ def read_json_file(path: str) -> List[Fire]:
         data = json.load(f)
         for fire_data in data["features"]:
             area = fire_data["properties"]["poly_GISAcres"]
-            start = fire_data["properties"]["attr_FireDiscoveryDateTime"]
+            start = fire_data["properties"]["poly_PolygonDateTime"]
             end = fire_data["properties"]["attr_FireOutDateTime"]
             if area < 10.0 or start is None or end is None:
                 continue
