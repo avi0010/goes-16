@@ -52,7 +52,7 @@ class Fire:
         id = properties["poly_SourceOID"]
         area_acre = properties["poly_GISAcres"]
 
-        fireDisoveryDateTime = properties["attr_FireDiscoveryDateTime"]
+        fireDisoveryDateTime = properties["poly_PolygonDateTime"]
 
         fireControlDateTime = properties["attr_FireOutDateTime"]
 
