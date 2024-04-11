@@ -245,9 +245,13 @@ class Downloader:
                         logging.debug(
                             f"Downloading files- {files}\n{hour_download_dir}"
                         )
-                        files_dict = self.__datetime_dictionary_list(files)
-                        file_timestamp = list(files_dict.keys())[0]
-                        self.fs.get(files_dict[file_timestamp], f"{hour_download_dir}/")
+                        # files_dict = self.__datetime_dictionary_list(files)
+                        # file_timestamp = list(files_dict.keys())[0]
+                        # self.fs.get(files_dict[file_timestamp], f"{hour_download_dir}/")
+                        if len(files) != 192:
+                            logging.error(f"Files for {day.year} are not complete")
+                            break
+                        self.fs.get(files, f"{hour_download_dir}/")
                         logging.info("Files have been downloaded")
                         break
                     except botocore.exceptions.ClientError as e:
