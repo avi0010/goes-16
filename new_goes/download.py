@@ -8,13 +8,13 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, List
 from tqdm import tqdm
-from tqdm.contrib.concurrent import thread_map
+from multiprocessing import Pool
 
 import botocore
 import numpy as np
 import s3fs
 import skimage
-from osgeo import gdal, ogr, osr
+from osgeo import gdal
 from tqdm import tqdm
 
 import preprocess
@@ -27,6 +27,18 @@ logging.basicConfig(
     filename="goes_downloader.log",
     filemode="w",
 )
+
+
+def __process_file(file_path: str):
+    file_path = preprocess.process_band_file(file_path)
+    file_path = preprocess.convert_to_tiff(file_path)
+
+
+def process_hour(hour_path):
+    files = os.listdir(hour_path)
+    file_paths = [os.path.join(hour_path, file) for file in files]
+    for file in file_paths:
+        __process_file(file)
 
 
 class Downloader:
@@ -68,15 +80,16 @@ class Downloader:
         if not os.path.exists(self.patch_file):
             os.mkdir(self.patch_file)
 
-
-    def __datetime_dictionary_list(self, day_bands:List[str]) -> Dict[datetime, List[str]]:
+    def __datetime_dictionary_list(
+        self, day_bands: List[str]
+    ) -> Dict[datetime, List[str]]:
         dict = defaultdict(list)
         for band in day_bands:
             f = preprocess.parse_filename(band.split("/")[-1])
             dict[f["start_time"]].append(band)
 
         return dict
-        
+
     def __datetime_dictionary(self, day_path: str) -> Dict[datetime, List[str]]:
         dict = defaultdict(list)
         for hour in os.listdir(day_path):
@@ -87,7 +100,7 @@ class Downloader:
                 dict[f["start_time"]].append(os.path.join(day_path, hour, file))
         return dict
 
-    def process_contours(self, contours, day_path:str, fires:List[Fire], win_size=32):
+    def process_contours(self, contours, day_path: str, fires: List[Fire], win_size=32):
         datetime_dict = self.__datetime_dictionary(day_path)
         for date, files in datetime_dict.items():
             for i, contour in enumerate(contours):
@@ -106,7 +119,7 @@ class Downloader:
 
                 if len(fires) == 1:
                     x_offset = centre_y - win_size // 2
-                    y_offset = centre_x - win_size // 2 
+                    y_offset = centre_x - win_size // 2
 
                 else:
                     x_random = int(random.uniform(-1 * (win_size // 2), win_size // 2))
@@ -122,31 +135,22 @@ class Downloader:
                     # preprocess.process_band_file(file_path)
 
                 output_tiff = os.path.join(day_path, "output.tiff")
-                gdal.Translate(os.path.join(patch_dir, "output.tiff"),output_tiff , srcWin=window)
+                gdal.Translate(
+                    os.path.join(patch_dir, "output.tiff"), output_tiff, srcWin=window
+                )
 
-    
-
-    def __process_file(self, file_path: str):
-        file_path = preprocess.process_band_file(file_path)
-        file_path = preprocess.convert_to_tiff(file_path)
-
-
-    def process_day(self, day_path: str, curr_fire:Fire|None=None):
-
+    def process_day(self, day_path: str, curr_fire: Fire | None = None):
         if curr_fire is None:
             fires = self.fires
         else:
             fires = [curr_fire]
 
-        def process_hour(hour):
-            hour_path = os.path.join(day_path, hour)
-            files = os.listdir(hour_path)
-            file_paths = [os.path.join(hour_path, file) for file in files]
-
-            thread_map(self.__process_file, file_paths)
-
-        for hour in os.listdir(day_path):
-            process_hour(hour)
+        hours = os.listdir(day_path)
+        hour_paths = [os.path.join(day_path, hour) for hour in hours]
+        with Pool() as pp:
+            with tqdm(total=len(hour_paths), leave=False) as pbar:
+                for _ in pp.imap_unordered(process_hour, hour_paths):
+                    pbar.update()
 
         output_location = preprocess.process_output(fires, day_path)
         ds = gdal.Open(output_location)
@@ -154,7 +158,7 @@ class Downloader:
         contours = skimage.measure.find_contours(myarray)
         self.process_contours(contours, day_path, fires)
 
-    def __day_cleanup(self, day_path:str):
+    def __day_cleanup(self, day_path: str):
         os.remove(os.path.join(day_path, "output.tiff"))
         for hour in os.listdir(day_path):
             for file in tqdm(os.listdir(os.path.join(day_path, hour))):
@@ -162,7 +166,7 @@ class Downloader:
             os.rmdir(os.path.join(day_path, hour))
         os.rmdir(os.path.join(day_path))
 
-    def download(self, raster_curr_fire:bool=False):
+    def download(self, raster_curr_fire: bool = False):
         """
         Downloads data for fire events.
         """
@@ -178,10 +182,7 @@ class Downloader:
                 dates = dates[:2]
             for date in (pbar := tqdm(dates, position=1, leave=False)):
                 pbar.set_postfix_str(f"date: {str(date)}")
-                # if date.month == 7:
-                    # WARN:Only August most change for dataset generation
                 day_path = self._download_day(date)
-                # day_path = temp_download()
                 if day_path is not None:
                     if raster_curr_fire:
                         self.process_day(day_path, fire)
