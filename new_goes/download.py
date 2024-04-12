@@ -29,7 +29,7 @@ logging.basicConfig(
 )
 
 
-def __process_file(file_path: str):
+def process_file(file_path: str):
     file_path = preprocess.process_band_file(file_path)
     file_path = preprocess.convert_to_tiff(file_path)
 
@@ -38,7 +38,7 @@ def process_hour(hour_path):
     files = os.listdir(hour_path)
     file_paths = [os.path.join(hour_path, file) for file in files]
     for file in file_paths:
-        __process_file(file)
+        process_file(file)
 
 
 class Downloader:
@@ -147,9 +147,14 @@ class Downloader:
 
         hours = os.listdir(day_path)
         hour_paths = [os.path.join(day_path, hour) for hour in hours]
+
+        files = []
+        for hour in hour_paths:
+            files.extend([os.path.join(hour, file) for file in os.listdir(hour)])
+
         with Pool() as pp:
-            with tqdm(total=len(hour_paths), leave=False) as pbar:
-                for _ in pp.imap_unordered(process_hour, hour_paths):
+            with tqdm(total=len(files), leave=False) as pbar:
+                for _ in pp.imap_unordered(process_file, files):
                     pbar.update()
 
         output_location = preprocess.process_output(fires, day_path)
