@@ -113,6 +113,9 @@ class Downloader:
                 else:
                     patch_dir = os.path.join(self.patch_file, str(date))
 
+                if os.path.exists(patch_dir):
+                    return
+
                 os.mkdir(patch_dir)
 
                 centre_x, centre_y = np.mean(contour, axis=0).astype(np.uint64)
@@ -166,7 +169,7 @@ class Downloader:
     def __day_cleanup(self, day_path: str):
         os.remove(os.path.join(day_path, "output.tiff"))
         for hour in os.listdir(day_path):
-            for file in tqdm(os.listdir(os.path.join(day_path, hour))):
+            for file in os.listdir(os.path.join(day_path, hour)):
                 os.remove(os.path.join(day_path, hour, file))
             os.rmdir(os.path.join(day_path, hour))
         os.rmdir(os.path.join(day_path))
