@@ -30,13 +30,13 @@ if __name__ == "__main__":
     small_fires: List[Fire] = []
 
     for fire in fires:
-        if fire.id in VERY_LARGE_FIRES_ID:
+        if fire.area_acre >= 1000:
             very_large_fires.append(fire)
-        if fire.id in LARGE_FIRES_ID:
+        elif fire.area_acre >= 500 and fire.area_acre < 1000:
             large_fires.append(fire)
-        if fire.id in MEDIUM_FIRES_ID:
+        elif fire.area_acre >= 100 and fire.area_acre < 500:
             medium_fires.append(fire)
-        if fire.id in SMALL_FIRES_ID:
+        elif fire.area_acre >= 30 and fire.area_acre < 100:
             small_fires.append(fire)
 
     Analytics_Downloader(very_large_fires, "analytics", "Very Large", ["ABI-L1b-RadC"])
