@@ -117,15 +117,15 @@ class Downloader:
 
                 centre_x, centre_y = np.mean(contour, axis=0).astype(np.uint64)
 
-                if len(fires) == 1:
-                    x_offset = centre_y - win_size // 2
-                    y_offset = centre_x - win_size // 2
+                # if len(fires) == 1:
+                #     x_offset = centre_y - win_size // 2
+                #     y_offset = centre_x - win_size // 2
 
-                else:
-                    x_random = int(random.uniform(-1 * (win_size // 2), win_size // 2))
-                    y_random = int(random.uniform(-1 * (win_size // 2), win_size // 2))
-                    x_offset = centre_y - win_size // 2 + x_random
-                    y_offset = centre_x - win_size // 2 + y_random
+                # else:
+                x_random = int(random.uniform(-1 * (win_size // 2), win_size // 2))
+                y_random = int(random.uniform(-1 * (win_size // 2), win_size // 2))
+                x_offset = centre_y - win_size // 2 + x_random
+                y_offset = centre_x - win_size // 2 + y_random
 
                 window = (x_offset, y_offset, win_size, win_size)
 
