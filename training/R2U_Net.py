@@ -2,16 +2,17 @@ import torch
 import torch.nn as nn
 
 from model_utils import RRCNN_block, UpConv
+from thop import profile, clever_format
 
 
 class R2U_Net(nn.Module):
-    def __init__(self, img_ch=6, output_ch=1, t=2):
+    def __init__(self, img_ch=16, output_ch=1, t=2):
         super(R2U_Net, self).__init__()
 
         self.Maxpool = nn.MaxPool2d(kernel_size=2, stride=2)
         self.Upsample = nn.Upsample(scale_factor=2)
 
-        n_filter = [32, 64, 128]
+        n_filter = [64, 128, 256]
 
         self.RRCNN1 = RRCNN_block(ch_in=img_ch, ch_out=n_filter[0], t=t)
 
@@ -51,3 +52,10 @@ class R2U_Net(nn.Module):
         d1 = self.Conv_1x1(d2)
 
         return d1
+
+if __name__ == "__main__":
+    model = R2U_Net()
+    image = torch.randn((1, 16, 32, 32))
+    macs, params = profile(model, inputs=(image, ))
+    macs, params = clever_format([macs, params], "%.3f")
+    print(f"macs: {macs}, params: {params}")
