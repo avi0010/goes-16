@@ -25,8 +25,6 @@ if not os.path.exists(model_save_path):
 parser = argparse.ArgumentParser()
 subparsers = parser.add_subparsers(help="training dataset creater")
 parser.add_argument("-d", "--data", required=True)
-parser.add_argument("-r", "--ratio", required=True, type=float)
-parser.add_argument("-t", "--threshold", required=False, type=float, default=0.5)
 parser.add_argument("-e", "--epochs", required=True, type=int)
 
 args = parser.parse_args()
@@ -96,8 +94,8 @@ transform = v2.Compose(
     ]
 )
 
-train_dataset = CustomDataset(training_list, transforms=transform)
-validation_dataset = CustomDataset(validation_list, transforms=transform)
+train_dataset = CustomDataset(training_list[:10], transforms=transform)
+validation_dataset = CustomDataset(validation_list[:10], transforms=transform)
 
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 validation_loader = DataLoader(validation_dataset, batch_size=64, shuffle=True)
@@ -139,11 +137,11 @@ for epoch in tqdm(range(args.epochs)):
     NETWORK.eval()
 
     with torch.no_grad():
-        for i, vdata in enumerate(validation_loader):
+        for i, vdata in tqdm(enumerate(validation_loader), leave=False):
             vinputs, vlabels = vdata
-            vinputs, vlabels = vinputs.to(DEVICE), vlabels.to(DEVICE)
+            vinputs, vlabels = vinputs.to(DEVICE), vlabels.to(DEVICE).to(torch.float)
 
-            voutputs = torch.sigmoid(NETWORK(vinputs))
+            voutputs = torch.sigmoid(NETWORK(vinputs)).reshape(-1)
 
             vloss = loss_fn(voutputs, vlabels)
 
