@@ -106,6 +106,7 @@ validation_loader = DataLoader(validation_dataset, batch_size=64, shuffle=True)
 loss_fn = nn.BCEWithLogitsLoss(torch.tensor(10.)).to(DEVICE)
 v_loss, t_loss       = [], []
 
+best_vloss = 1_000_000
 
 for epoch in tqdm(range(args.epochs)):
 
@@ -155,6 +156,12 @@ for epoch in tqdm(range(args.epochs)):
     avg_vloss = running_vloss / len(validation_loader)
     scheduler.step(avg_vloss)
     v_loss.append(avg_vloss)
+
+
+    if avg_vloss < best_vloss:
+        best_vloss = avg_vloss
+        model_path = os.path.join(model_save_path, f"model{epoch + 1}_{avg_vloss}.pth")
+        torch.save(NETWORK, model_path)
 
 xs = [x for x in range(args.epochs)]
 plt.plot(xs, t_loss, label="t_loss")
