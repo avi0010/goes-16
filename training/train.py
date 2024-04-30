@@ -97,9 +97,9 @@ for fire_type in os.listdir(os.path.join(args.data)):
                 date_dir = os.path.join(args.data, fire_type, "patches", fire_id, date)
                 if len(os.listdir(date_dir)) == 17:
                     if rnd_choice == 1:
-                        validation_list.append(ModelInput(date_dir, True))
+                        validation_list.append(ModelInput(date_dir, False))
                     else:
-                        training_list.append(ModelInput(date_dir, True))
+                        training_list.append(ModelInput(date_dir, False))
                 else:
                    logging.warning(f"Bands missing in {date_dir}. Skipping image set from this timestamp")
 

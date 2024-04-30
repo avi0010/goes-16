@@ -9,7 +9,7 @@ from PIL import Image
 from torch.utils.data import Dataset
 from torchvision.transforms import v2
 import json
-from osgeo import ogr
+# from osgeo import ogr
 
 
 class Fire:
@@ -19,14 +19,14 @@ class Fire:
         area: float,
         start: datetime,
         end: datetime,
-        geo: ogr.Geometry,
+#        geo: ogr.Geometry,
         fire_labels=None,
     ) -> None:
         self.id = id
         self.area_acre = area
         self.start_date = start
         self.end_date = end
-        self.geometry = geo
+#        self.geometry = geo
         self.fire = fire_labels
 
     def __str__(self) -> str:
@@ -45,13 +45,13 @@ class Fire:
         format_string = "%a, %d %b %Y %H:%M:%S %Z"
         start_date = datetime.strptime(fireDisoveryDateTime, format_string)
         end_date = datetime.strptime(fireControlDateTime, format_string)
-        geometry = ogr.CreateGeometryFromJson(json.dumps(fire["geometry"]))
+#        geometry = ogr.CreateGeometryFromJson(json.dumps(fire["geometry"]))
 
         fires = None
         if "fire_samples" in properties:
             fires = properties["fire_samples"]
 
-        return cls(id, area_acre, start_date, end_date, geometry, fires)
+        return cls(id, area_acre, start_date, end_date, fires)
 
 
 def read_json_file(path: str) -> List[Fire]:

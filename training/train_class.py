@@ -80,9 +80,9 @@ for fire_type in os.listdir(os.path.join(args.data)):
                 date_dir = os.path.join(args.data, fire_type, "patches", fire_id, date)
                 if len(os.listdir(date_dir)) == 17:
                     if rnd_choice == 1:
-                        validation_list.append(ModelInput(date_dir, True))
+                        validation_list.append(ModelInput(date_dir, False))
                     else:
-                        training_list.append(ModelInput(date_dir, True))
+                        training_list.append(ModelInput(date_dir, False))
                 else:
                    logging.warning(f"Bands missing in {date_dir}. Skipping image set from this timestamp")
 
@@ -94,8 +94,11 @@ transform = v2.Compose(
     ]
 )
 
-train_dataset = CustomDataset(training_list, transforms=transform)
-validation_dataset = CustomDataset(validation_list, transforms=transform)
+random.shuffle(training_list)
+random.shuffle(validation_list)
+
+train_dataset = CustomDataset(training_list[:10], transforms=transform)
+validation_dataset = CustomDataset(validation_list[:10], transforms=transform)
 
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 validation_loader = DataLoader(validation_dataset, batch_size=64, shuffle=True)
@@ -111,11 +114,12 @@ for epoch in tqdm(range(args.epochs)):
 
     for batch in (pbar := tqdm(train_loader, leave=False)):
         images, labels = batch
-        images, labels = images.to(DEVICE), labels.to(DEVICE).to(torch.float)
+        images, labels = images.to(DEVICE), labels.to(DEVICE).to(torch.float).unsqueeze(1)
 
         OPTIMIZER.zero_grad()
 
-        outputs = torch.sigmoid(NETWORK(images)).reshape(-1)
+        outputs = NETWORK(images)
+        print(labels, outputs)
         # Compute the loss and its gradients
         loss = loss_fn(outputs, labels)
 
@@ -139,9 +143,10 @@ for epoch in tqdm(range(args.epochs)):
     with torch.no_grad():
         for i, vdata in tqdm(enumerate(validation_loader), leave=False):
             vinputs, vlabels = vdata
-            vinputs, vlabels = vinputs.to(DEVICE), vlabels.to(DEVICE).to(torch.float)
+            vinputs, vlabels = vinputs.to(DEVICE), vlabels.to(DEVICE).to(torch.float).unsqueeze(1)
 
-            voutputs = torch.sigmoid(NETWORK(vinputs)).reshape(-1)
+            voutputs = NETWORK(vinputs)
+            print(voutputs, vlabels)
 
             vloss = loss_fn(voutputs, vlabels)
 
