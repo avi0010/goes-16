@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 
 from model_utils import RRCNN_block, UpConv
-from thop import profile, clever_format
 
 
 class R2U_Net(nn.Module):
@@ -52,10 +51,3 @@ class R2U_Net(nn.Module):
         d1 = self.Conv_1x1(d2)
 
         return d1
-
-if __name__ == "__main__":
-    model = R2U_Net()
-    image = torch.randn((1, 16, 32, 32))
-    macs, params = profile(model, inputs=(image, ))
-    macs, params = clever_format([macs, params], "%.3f")
-    print(f"macs: {macs}, params: {params}")
