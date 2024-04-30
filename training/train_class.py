@@ -94,8 +94,8 @@ transform = v2.Compose(
     ]
 )
 
-train_dataset = CustomDataset(training_list[:10], transforms=transform)
-validation_dataset = CustomDataset(validation_list[:10], transforms=transform)
+train_dataset = CustomDataset(training_list, transforms=transform)
+validation_dataset = CustomDataset(validation_list, transforms=transform)
 
 train_loader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 validation_loader = DataLoader(validation_dataset, batch_size=64, shuffle=True)
