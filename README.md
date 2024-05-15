@@ -113,3 +113,15 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 new_goes/pi
 #Colormap Analysis
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 new_goes/colormap_analysis.py
 ```
+
+**Deployment**
+```bash
+#Download and Process files
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/download.py
+
+#Generate patches
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/node.py
+
+#Inference
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/infer.py
+```
