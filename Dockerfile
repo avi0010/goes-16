@@ -1,5 +1,5 @@
-# Use the official Ubuntu image as the base
-FROM ubuntu:latest
+FROM python:3.10.14-bookworm
+ENV PYTHONUNBUFFERED 1
 
 # Set environment variables for non-interactive mode
 ENV DEBIAN_FRONTEND=noninteractive
