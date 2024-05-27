@@ -36,7 +36,7 @@ class Node:
         if not os.path.exists(self.save_path):
             os.mkdir(self.save_path)
 
-        # self.__convert_WSG__()
+        self.__convert_WSG__()
 
     def __convert_WSG__(self):
         InSR = osr.SpatialReference()
@@ -45,7 +45,9 @@ class Node:
         OutSR.SetFromUserInput("ESRI:102498")
 
         transform_epsg = osr.CoordinateTransformation(InSR, OutSR)
-        self.lat, self.lon = transform_epsg.TransformPoint(self.lat, self.lon)
+
+        self.lon, self.lat, _ = transform_epsg.TransformPoint(self.lat, self.lon)
+
 
     def crop(self, win_size:int=32):
         for file in os.listdir(self.base_dir):

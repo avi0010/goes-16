@@ -91,8 +91,8 @@ class Downloader:
         layer = gdal.Open(file_path)
         options = gdal.WarpOptions(
             format="GTiff",
-            srcSRS="ESRI:102498",
-            dstSRS="EPSG:4326",
+            # srcSRS="ESRI:102498",
+            # dstSRS="EPSG:4326",
             width=10000,
             height=6000,
         )
