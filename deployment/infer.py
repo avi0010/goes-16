@@ -1,6 +1,7 @@
 import os
 import torch
 import random
+import json
 import numpy as np
 from typing import List
 from torch.utils.data import Dataset
@@ -281,6 +282,11 @@ if __name__ == "__main__":
 
     dataset = CustomDataset(fires, transforms=transform, target_transforms=transform)
 
+    geojson_featurecollection = {
+                                    'type': 'FeatureCollection',
+                                    'features': []
+                                }
+
     for i in tqdm(dataset):
         inputs, save = i
 
@@ -306,4 +312,12 @@ if __name__ == "__main__":
 
             dst_layer = shp.CreateLayer("output", srs=srs)
             gdal.Polygonize(data, None, dst_layer, -1, [], callback=None)
-            shp.Destroy()
+
+            if np.sum(im_label) > 0:
+                for feature in dst_layer:  
+                    geojson_featurecollection['features'].append(feature.ExportToJson(as_object=True))   
+
+            shp.Destroy()      
+
+    with open('./tmp/hotspots.json', 'w') as f:
+        json.dump(geojson_featurecollection, f)
