@@ -5,30 +5,45 @@ import s3fs
 from osgeo import gdal
 from tqdm import tqdm
 from netCDF4 import Dataset
-from pprint import pprint
 import numpy as np
 from datetime import datetime
 import argparse
+from dotenv import load_dotenv
 
 
 PARAM = "ABI-L1b-RadC"
+load_dotenv()
 
 
 class Downloader:
     def __init__(self) -> None:
         self.fs = s3fs.S3FileSystem(anon=True)
-        if not os.path.exists("./tmp"):
-            os.mkdir("./tmp")
 
-        self.base_download_path = "./tmp/base"
+        base_dir = os.getenv("BASE_DATA_DIR")
+        if base_dir is None:
+            raise ValueError("BASE_DATA_DIR is not provided in env file")
+
+        self.base_download_path = base_dir
         self.__clean_data()
         if not os.path.exists(self.base_download_path):
-            os.mkdir(self.base_download_path)
+            os.makedirs(self.base_download_path)
+
 
     def __clean_data(self):
         if os.path.exists(self.base_download_path):
             for file in os.listdir(self.base_download_path):
                 os.remove(os.path.join(self.base_download_path, file))
+
+        patches_dir = os.getenv("BASE_PATCHES_DIR")
+        if patches_dir is None:
+            raise ValueError("BASE_PATCHES_DIR is not provided in env file")
+
+        if os.path.exists(patches_dir):
+            for sensor_id in os.listdir(patches_dir):
+                for file in os.listdir(os.path.join(patches_dir, sensor_id)):
+                    os.remove(os.path.join(patches_dir, sensor_id, file))
+
+                os.rmdir(os.path.join(patches_dir, sensor_id))
 
     def parse_filename(self, filename: str) -> dict:
         if filename.startswith("OR_"):

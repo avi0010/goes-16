@@ -1,6 +1,7 @@
 import os
 import torch
 import random
+from pprint import pprint
 import json
 import numpy as np
 from typing import List
@@ -11,7 +12,9 @@ from PIL import Image
 from tqdm import tqdm
 from datetime import datetime
 from osgeo import gdal, ogr, osr
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def parse_filename(filename: str) -> dict:
     if filename.startswith("OR_"):
@@ -230,7 +233,7 @@ class ModelInput:
             )
         )
 
-        return inputs, [output_dataset, dst_ds]
+        return inputs, [output_dataset, dst_ds, f['start_time']]
 
 
 class CustomDataset(Dataset):
@@ -255,21 +258,16 @@ class CustomDataset(Dataset):
             torch.manual_seed(seed)
             input_images = self.transform(input_images)
 
-        if self.target_transforms is not None:
-            random.seed(seed)
-            torch.manual_seed(seed)
-            label = self.target_transforms(label)
-
-        return input_images, label
+        return input_images, label, self.datalist[index].in_dir
 
 
 if __name__ == "__main__":
     MODEL = torch.load("./training/models/training/models/R2U/model19_0.024963259883224963.pth", map_location=torch.device('cpu'))
     MODEL.eval()
-    threshold = 0.25
+    threshold = os.getenv("THRESHOLD")
 
     fires = []
-    patch_dir = "./tmp/patches/"
+    patch_dir = os.getenv("BASE_PATCHES_DIR")
     for fire in os.listdir(patch_dir):
         fires.append(ModelInput(os.path.join(patch_dir, fire)))
 
@@ -288,7 +286,8 @@ if __name__ == "__main__":
                                 }
 
     for i in tqdm(dataset):
-        inputs, save = i
+        inputs, temp, dir = i
+        gtiff, shp, t = temp
 
         with torch.no_grad():
             img = torch.unsqueeze(inputs, 0)
@@ -299,8 +298,6 @@ if __name__ == "__main__":
             out = torch.squeeze(out, 0)
             out = to_pil_image(out)
             im_label = np.array(out)
-
-            gtiff, shp = save
 
             gtiff.GetRasterBand(1).WriteArray(im_label)
             gtiff.FlushCache()
@@ -314,10 +311,12 @@ if __name__ == "__main__":
             gdal.Polygonize(data, None, dst_layer, -1, [], callback=None)
 
             if np.sum(im_label) > 0:
-                for feature in dst_layer:  
-                    geojson_featurecollection['features'].append(feature.ExportToJson(as_object=True))   
+                for feature in dst_layer:
+                    feature_dict = feature.ExportToJson(as_object=True)
+                    feature_dict['id'] = dir.split("/")[-1]
+                    geojson_featurecollection["features"].append(feature_dict)
 
             shp.Destroy()      
 
-    with open('./tmp/hotspots.json', 'w') as f:
+    with open(f'./tmp/hotspots_{str(t)}.json', 'w') as f:
         json.dump(geojson_featurecollection, f)

@@ -3,6 +3,8 @@ from typing import List
 from osgeo import osr, gdal
 import os
 from tqdm import tqdm
+from dotenv import load_dotenv
+load_dotenv()
 
 
 class Node:
@@ -22,13 +24,21 @@ class Node:
         self.lat = lat
         self.lon = lon
 
-        self.tmp_dir = "./tmp"
-        self.base_dir = os.path.join(self.tmp_dir, "base")
+
+        base_dir = os.getenv("BASE_DATA_DIR")
+        if base_dir is None:
+            raise ValueError("BASE_DATA_DIR is not provided in env file")
+
+        self.base_dir = base_dir
 
         if len(os.listdir(self.base_dir)) != 16 :
             raise ValueError("Base files not present")
 
-        self.patches_dir = os.path.join(self.tmp_dir, "patches")
+        patches_dir = os.getenv("BASE_PATCHES_DIR")
+        if patches_dir is None:
+            raise ValueError("BASE_PATCHES_DIR is not provided in env file")
+
+        self.patches_dir = patches_dir
         if not os.path.exists(self.patches_dir):
             os.mkdir(self.patches_dir)
 
