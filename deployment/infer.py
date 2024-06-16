@@ -318,5 +318,5 @@ if __name__ == "__main__":
 
             shp.Destroy()      
 
-    with open(f'./tmp/hotspots_{str(t)}.json', 'w') as f:
+    with open(f'{os.getenv("BASE_DIR")}/hotspots_{str(t)}.json', 'w') as f:
         json.dump(geojson_featurecollection, f)
