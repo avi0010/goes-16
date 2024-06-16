@@ -264,7 +264,7 @@ class CustomDataset(Dataset):
 if __name__ == "__main__":
     MODEL = torch.load("./training/models/training/models/R2U/model19_0.024963259883224963.pth", map_location=torch.device('cpu'))
     MODEL.eval()
-    threshold = os.getenv("THRESHOLD")
+    threshold = float(os.getenv("THRESHOLD"))
 
     fires = []
     patch_dir = os.getenv("BASE_PATCHES_DIR")
@@ -308,7 +308,7 @@ if __name__ == "__main__":
             srs.ImportFromWkt(gtiff.GetProjection())
 
             dst_layer = shp.CreateLayer("output", srs=srs)
-            gdal.Polygonize(data, None, dst_layer, -1, [], callback=None)
+            gdal.Polygonize(data, data, dst_layer, -1, [], callback=None)
 
             if np.sum(im_label) > 0:
                 for feature in dst_layer:
