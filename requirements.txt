@@ -14,4 +14,7 @@ affine
 tqdm
 matplotlib
 scikit-image
+scikit-learn
+pandas
+plotly
 python-dotenv

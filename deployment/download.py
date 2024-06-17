@@ -96,7 +96,7 @@ class Downloader:
         with Pool() as pp:
             files = os.listdir(self.base_download_path)
             files_paths = [
-                os.path.join(self.base_download_path, file) for file in files
+                os.path.join(self.base_download_path, file) for file in files if file.split(".")[-1]=="nc"
             ]
             with tqdm(total=len(files_paths), leave=False) as pbar:
                 for _ in pp.imap_unordered(self.process_file, files_paths):

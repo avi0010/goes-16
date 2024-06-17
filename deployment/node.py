@@ -31,7 +31,7 @@ class Node:
 
         self.base_dir = base_dir
 
-        if len(os.listdir(self.base_dir)) != 16 :
+        if len(os.listdir(self.base_dir)) % 16 != 0 :
             raise ValueError("Base files not present")
 
         patches_dir = os.getenv("BASE_PATCHES_DIR")

@@ -1,7 +1,7 @@
 import os
 import torch
 import random
-from pprint import pprint
+from collections import defaultdict
 import json
 import numpy as np
 from typing import List
@@ -48,25 +48,32 @@ def parse_filename(filename: str) -> dict:
 
 class ModelInput:
     def __init__(self, in_dir) -> None:
-        self.in_dir = in_dir
+        if isinstance(in_dir, str):
+            self.files = [os.path.join(in_dir, fire) for fire in os.listdir(in_dir)]
+            self.in_dir = in_dir
+        elif isinstance(in_dir, list):
+            self.files = in_dir
+            self.in_dir = "/".join(in_dir[0].split("/")[:-1])
+        else:
+            raise ValueError("Invalid Input ")
 
     def create_input(self):
-        for band in os.listdir(self.in_dir):
+        for band in self.files:
             if ".tif" not in band:
                 continue
 
-            f = parse_filename(band)
+            f = parse_filename(band.split("/")[-1])
 
             if f["channel"] == 1:
                 band_1 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=0,
                     max=1,
                 )
                 band_1 = (band_1 - 0.0) / (1 - 0)
 
             elif f["channel"] == 2:
-                raster_layer = gdal.Open(os.path.join(self.in_dir, band))
+                raster_layer = gdal.Open(band)
 
                 driver = gdal.GetDriverByName("Gtiff")
                 output_dataset = driver.Create(
@@ -85,7 +92,7 @@ class ModelInput:
                 dst_ds = drv.CreateDataSource(os.path.join(self.in_dir, f"{f['start_time']}.shp"))
 
                 band_2 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=0,
                     max=1,
                 )
@@ -93,7 +100,7 @@ class ModelInput:
 
             elif f["channel"] == 3:
                 band_3 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=0,
                     max=1,
                 )
@@ -101,7 +108,7 @@ class ModelInput:
 
             elif f["channel"] == 4:
                 band_4 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=0,
                     max=1,
                 )
@@ -109,7 +116,7 @@ class ModelInput:
 
             elif f["channel"] == 5:
                 band_5 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=0,
                     max=1,
                 )
@@ -117,7 +124,7 @@ class ModelInput:
 
             elif f["channel"] == 6:
                 band_6 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=0,
                     max=1,
                 )
@@ -126,7 +133,7 @@ class ModelInput:
             elif f["channel"] == 7:
                 mn, mm = 197.31, 411.86
                 band_7 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -135,7 +142,7 @@ class ModelInput:
             elif f["channel"] == 8:
                 mn, mm = 138.05, 311.06
                 band_8 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -144,7 +151,7 @@ class ModelInput:
             elif f["channel"] == 9:
                 mn, mm = 137.7, 311.08
                 band_9 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -153,7 +160,7 @@ class ModelInput:
             elif f["channel"] == 10:
                 mn, mm = 126.91, 331.2
                 band_10 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -162,7 +169,7 @@ class ModelInput:
             elif f["channel"] == 11:
                 mn, mm = 127.69, 341.3
                 band_11 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -171,7 +178,7 @@ class ModelInput:
             elif f["channel"] == 12:
                 mn, mm = 117.49, 311.06
                 band_12 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -180,7 +187,7 @@ class ModelInput:
             elif f["channel"] == 13:
                 mn, mm = 89.62, 341.28
                 band_13 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -189,7 +196,7 @@ class ModelInput:
             elif f["channel"] == 14:
                 mn, mm = 96.19, 341.28
                 band_14 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -198,7 +205,7 @@ class ModelInput:
             elif f["channel"] == 15:
                 mn, mm = 97.38, 341.28
                 band_15 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -207,7 +214,7 @@ class ModelInput:
             elif f["channel"] == 16:
                 mn, mm = 92.7, 318.26
                 band_16 = torch.clamp(
-                    v2.ToImage()(Image.open(os.path.join(self.in_dir, band))),
+                    v2.ToImage()(Image.open(band)),
                     min=mn,
                     max=mm,
                 )
@@ -261,16 +268,46 @@ class CustomDataset(Dataset):
 
         return input_images, label, self.datalist[index].in_dir
 
+def _split_file(path):
+    dic = defaultdict(list)
+
+    for file in os.listdir(path):
+        f = parse_filename(file.split("/")[-1])
+        dic[f["start_time"]].append(file)
+
+    return dic
+
 
 if __name__ == "__main__":
-    MODEL = torch.load("./training/models/training/models/R2U/model19_0.024963259883224963.pth", map_location=torch.device('cpu'))
+    _model_path = os.getenv("MODEL_PATH")
+    if _model_path is not None:
+        model_path = _model_path
+    else:
+        raise ValueError("MODEL_PATH value not found")
+
+    MODEL = torch.load(model_path, map_location=torch.device('cpu'))
     MODEL.eval()
-    threshold = float(os.getenv("THRESHOLD"))
+
+    _threshold = os.getenv("THRESHOLD")
+    if _threshold is not None:
+        threshold = float(_threshold)
+    else:
+        raise ValueError("THRESHOLD value not found")
+
+    _patch_dir = os.getenv("BASE_PATCHES_DIR")
+    if _patch_dir is not None:
+        patch_dir = _patch_dir
+    else:
+        raise ValueError("PATCH_DIR value not found")
 
     fires = []
-    patch_dir = os.getenv("BASE_PATCHES_DIR")
     for fire in os.listdir(patch_dir):
-        fires.append(ModelInput(os.path.join(patch_dir, fire)))
+        if len(os.listdir(os.path.join(patch_dir, fire))) > 16 and len(os.listdir(os.path.join(patch_dir, fire))) % 16 == 0:
+            d = _split_file(os.path.join(patch_dir, fire))
+            for k,v in d.items():
+                fires.append(ModelInput([os.path.join(patch_dir, fire, x) for x in v]))
+        else:
+            fires.append(ModelInput(os.path.join(patch_dir, fire)))
 
     transform = v2.Compose(
         [
