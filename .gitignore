@@ -11,3 +11,5 @@ DATA/
 geoserver/
 # logging
 *.log
+
+.env

@@ -8,8 +8,10 @@ fiona
 pyproj
 geojson
 botocore
+boto3
 netCDF4
 affine
 tqdm
 matplotlib
 scikit-image
+python-dotenv

@@ -672,14 +672,6 @@
     "lon": -92.7129
   },
   {
-    "DeviceId": "fa-12-34-59",
-    "_id": "641c4d774a16af0ee63972b2",
-    "Device": "QA DEV",
-    "DeviceType": "ChemNode",
-    "lat": 50.9382,
-    "lon": -80.7905
-  },
-  {
     "DeviceId": "ab-12-cd-10",
     "_id": "646bbc056928a27123874b52",
     "Device": "T D V",

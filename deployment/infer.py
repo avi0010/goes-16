@@ -313,10 +313,12 @@ if __name__ == "__main__":
             if np.sum(im_label) > 0:
                 for feature in dst_layer:
                     feature_dict = feature.ExportToJson(as_object=True)
-                    feature_dict['id'] = dir.split("/")[-1]
+                    feature_dict['properties']['id'] = dir.split("/")[-1]
                     geojson_featurecollection["features"].append(feature_dict)
 
-            shp.Destroy()      
+            shp.Destroy()   
 
-    with open(f'{os.getenv("BASE_DIR")}/hotspots_{str(t)}.json', 'w') as f:
+    # saving shp file as geojson file
+    gj_path = f'{os.getenv("BASE_DIR")}/hotspots_{str(t)}.json'
+    with open(gj_path, 'w') as f:
         json.dump(geojson_featurecollection, f)
