@@ -67,11 +67,9 @@ def reproject_geojson(geojson_path, src_crs, dst_crs, output_path):
 
     # Reproject each feature geometry
     for feature in geojson_data['features']:
-        print(feature)
 
         geom = shape(feature['geometry'])
         reprojected_geom = transform(project, geom)
-        print(reprojected_geom)
 
         reprojected_feature = {
             'type': 'feature',
@@ -138,32 +136,36 @@ if __name__ == '__main__':
     hotspot_base_dir = os.getenv("BASE_PERIMETERS_DIR")
     hotspot_files = [os.path.join(hotspot_base_dir, file) for file in os.listdir(hotspot_base_dir) if file.find('json') > 0]
 
-    records_to_write = []
-    for gj in hotspot_files:
+    try:
+        records_to_write = []
+        for gj in hotspot_files:
 
-        # reprojecting the geojson file from 102498 to 4326
-        reproject_geojson(gj, 'ESRI:102498', 'EPSG:4326', gj)
+            # reprojecting the geojson file from 102498 to 4326
+            reproject_geojson(gj, 'ESRI:102498', 'EPSG:4326', gj)
 
-        # load GeoJSON data
-        with open(gj, 'r') as f:
-            geojson_data = json.load(f)
+            # load GeoJSON data
+            with open(gj, 'r') as f:
+                geojson_data = json.load(f)
 
-        # convert goes img scan time str to unix timestamp
-        acquisition_time_str = os.path.basename(gj).replace('hotspots_', '').replace('.json', '')
-        acquisition_timestamp = int(datetime.strptime(acquisition_time_str, '%Y-%m-%d %H:%M:%S.%f').timestamp() * 1000)
+            # convert goes img scan time str to unix timestamp
+            acquisition_time_str = os.path.basename(gj).replace('hotspots_', '').replace('.json', '')
+            acquisition_timestamp = int(datetime.strptime(acquisition_time_str, '%Y-%m-%d %H:%M:%S.%f').timestamp() * 1000)
 
-        for feature in geojson_data['features']:
+            for feature in geojson_data['features']:
 
-            #append any data item(s) to records_to_write
-            id = feature['properties']['id']
-            polygon_coords = list(np.array(list(coords(feature))))
+                #append any data item(s) to records_to_write
+                id = feature['properties']['id']
+                polygon_coords = list(np.array(list(coords(feature))))
 
-            records_to_write.append(prepare_timestream_record(stationID=id, current_time=acquisition_timestamp, coords=polygon_coords))      
+                records_to_write.append(prepare_timestream_record(stationID=id, current_time=acquisition_timestamp, coords=polygon_coords))      
 
-    print(f'Writing {len(records_to_write)} records')
+        print(f'Writing {len(records_to_write)} records')
 
-    #Write to timestream
-    write_timestream(records_to_write)
+        #Write to timestream
+        write_timestream(records_to_write)
 
-    # Cleanup
-    shutil.rmtree(hotspot_base_dir)
+    except Exception:
+        raise
+    finally:
+        # Cleanup
+        shutil.rmtree(hotspot_base_dir)
