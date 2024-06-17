@@ -13,6 +13,7 @@ from tqdm import tqdm
 from datetime import datetime
 from osgeo import gdal, ogr, osr
 from dotenv import load_dotenv
+import shutil
 
 load_dotenv()
 
@@ -319,6 +320,14 @@ if __name__ == "__main__":
             shp.Destroy()   
 
     # saving shp file as geojson file
-    gj_path = f'{os.getenv("BASE_DIR")}/hotspots_{str(t)}.json'
+    hotspot_base_dir = os.getenv("BASE_PERIMETERS_DIR")
+    if not os.path.exists(hotspot_base_dir):
+        os.mkdir(hotspot_base_dir)
+
+    gj_path = f'{os.getenv("BASE_PERIMETERS_DIR")}/hotspots_{str(t)}.json'
     with open(gj_path, 'w') as f:
         json.dump(geojson_featurecollection, f)
+    
+    # cleanup
+    shutil.rmtree(os.getenv("BASE_DATA_DIR"))
+    shutil.rmtree(os.getenv("BASE_PATCHES_DIR"))

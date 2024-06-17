@@ -124,4 +124,7 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/
 
 #Inference
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/infer.py
+
+#Writing to timestream database (only can be done from prod server)
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/timestream_writer.py
 ```

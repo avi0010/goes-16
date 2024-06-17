@@ -135,8 +135,8 @@ def write_timestream(records, db='n5-timestream', table='hotspot-perimeters'):
 
 if __name__ == '__main__':
 
-    base_dir = os.getenv("BASE_DIR")
-    hotspot_files = [os.path.join(base_dir, file) for file in os.listdir(base_dir) if file.find('json') > 0]
+    hotspot_base_dir = os.getenv("BASE_PERIMETERS_DIR")
+    hotspot_files = [os.path.join(hotspot_base_dir, file) for file in os.listdir(hotspot_base_dir) if file.find('json') > 0]
 
     records_to_write = []
     for gj in hotspot_files:
@@ -165,5 +165,5 @@ if __name__ == '__main__':
     #Write to timestream
     write_timestream(records_to_write)
 
-    # Clean BASE DIR
-    shutil.rmtree(base_dir)
+    # Cleanup
+    shutil.rmtree(hotspot_base_dir)
