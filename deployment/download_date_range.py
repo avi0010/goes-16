@@ -1,5 +1,5 @@
 from download import Downloader
-from node import Node
+from node import Node, parse_json
 from datetime import datetime, timedelta
 import argparse
 
@@ -17,12 +17,11 @@ if __name__ == "__main__":
 
     dates = [START_TIME + timedelta(minutes=x*float(args.diff)) for x in range(int((END_TIME - START_TIME).total_seconds()/(60 * float(args.diff)) + 1))]
 
-    coordinates = [[39.10353899002075, -77.06602717886126]]
-
     down = Downloader()
     for idx, i in enumerate(dates):
         down.download_datetime(i)
 
-    for i, coord in enumerate(coordinates):
-        node = Node(device_id=str(i), id=str(i), device_name=str(i), device_type=str(i), lat=coord[0], lon=coord[1])
+    nodes = parse_json("./deployment/locations.json")
+        
+    for i, node in enumerate(nodes):
         node.crop()
