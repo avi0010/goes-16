@@ -1430,5 +1430,86 @@
     "DeviceType": "ChemNode",
     "lat": 37.736324,
     "lon": -122.132412
+  },
+  {
+    "DeviceId": "NOAA-20-1",
+    "_id": "US1",
+    "Device": "NOAA-20-1",
+    "DeviceType": "Incident",
+    "Acquired": "2024-06-16 02:23:00",
+    "lat": 47.4691,
+    "lon": -122.05036
+  },
+  {
+    "DeviceId": "L8-2",
+    "_id": "US2",
+    "Device": "L8-2",
+    "DeviceType": "Incident",
+    "Acquired": "2024-06-16 00:25:00",
+    "lat": 46.037562,
+    "lon": -122.777138
+  },
+  {
+    "DeviceId": "L8-3",
+    "_id": "US3",
+    "Device": "L8-3",
+    "DeviceType": "Incident",
+    "Acquired": "2024-06-16 00:25:00",
+    "lat": 45.287991,
+    "lon": -122.590344
+  },
+  {
+    "DeviceId": "VIIRS-4",
+    "_id": "US4",
+    "Device": "VIIRS-4",
+    "DeviceType": "Incident",
+    "Acquired": "2024-06-16 01:59:00",
+    "lat": 48.17286,
+    "lon": -120.51059
+  },
+  {
+    "DeviceId": "NOAA-20-5",
+    "_id": "US5",
+    "Device": "NOAA-20-5",
+    "DeviceType": "Incident",
+    "Acquired": "2024-06-16 02:23:00",
+    "lat": 46.4547,
+    "lon": -120.09995
+  },
+  {
+    "DeviceId": "NOAA-20-6",
+    "_id": "US6",
+    "Device": "NOAA-20-6",
+    "DeviceType": "Incident",
+    "Acquired": "2024-06-16 02:23:00",
+    "lat": 46.56174,
+    "lon": -118.21544
+  },
+  {
+    "DeviceId": "L8-7",
+    "_id": "US7",
+    "Device": "L8-7",
+    "DeviceType": "Incident",
+    "Acquired": "2024-06-15 23:37:00",
+    "lat": 38.171309,
+    "lon": -112.449456
+  },
+  {
+    "DeviceId": "L8-8",
+    "_id": "US8",
+    "Device": "L8-8",
+    "DeviceType": "Incident",
+    "Acquired": "2024-06-15 22:49:00",
+    "lat": 32.437284,
+    "lon": -101.382097
+  },
+  {
+    "DeviceId": "L8-9",
+    "_id": "US9",
+    "Device": "L8-9",
+    "DeviceType": "Incident",
+    "Acquired": "2024-06-15 22:49:00",
+    "lat": 36.893268,
+    "lon": -89.383357
   }
 ]
