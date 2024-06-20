@@ -352,6 +352,7 @@ if __name__ == "__main__":
                 for feature in dst_layer:
                     feature_dict = feature.ExportToJson(as_object=True)
                     feature_dict['properties']['id'] = dir.split("/")[-1]
+                    feature_dict['properties']['timestamp'] = t
                     geojson_featurecollection["features"].append(feature_dict)
 
             shp.Destroy()   
