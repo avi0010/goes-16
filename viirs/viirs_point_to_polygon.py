@@ -5,6 +5,8 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Iterable, List
 
+from pyproj import Geod
+from shapely.geometry import shape, box
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -112,13 +114,99 @@ class ViirsDatasetWriter(ViirsDataset):
                                     'type': 'FeatureCollection',
                                     'features': [{"type": "Feature", "properties": {"timestamp": date.strftime("%d/%m/%Y %H:%M:%S")}, "geometry": json.loads(feature.ExportToJson())}
                                                     for feature in self.__polygons]
-                            }
+            }
         
             with open(output_path, 'w') as f:
                 json.dump(feature_collection, f)
 
+    @staticmethod
+    def post_processing(geojson_dir:str, bbox, area_in_acres:float, base_dir):
+        '''
+            To filter out geometries that are outside bbox and are smaller than given area
+        '''
+
+        geojson_files = [os.path.join(geojson_dir, file) for file in os.listdir(geojson_dir)]
+
+        geod = Geod(ellps="WGS84") # Specify a named ellipsoid
+        bbox_polygon = box(*bbox)
+
+        if not os.path.exists(base_dir):
+            os.mkdir(base_dir)
+
+        output_dir = os.path.join(base_dir, "post-processed")
+        if not os.path.exists(output_dir):
+            os.mkdir(output_dir)
+
+
+        for file in geojson_files:
+            gj = json.load(open(file, 'r'))
+
+            feature_collection = {
+                'type': 'FeatureCollection',
+                'features': []
+            }
+
+            for feature in gj['features']:
+                geometry = shape(feature['geometry'])
+                area = abs(geod.geometry_area_perimeter(geometry)[0]) * 0.000247105 # To convert to acres
+                intersects = geometry.intersects(bbox_polygon)
+
+                feature['properties']['area'] = area
+
+                if intersects and area > area_in_acres:
+                    feature_collection['features'].append(feature)
+        
+            output_path = os.path.join(output_dir, os.path.basename(file))
+            #print(eligible, '\n')
+            with open(output_path, 'w') as f:
+                json.dump(feature_collection, f)
+
+    @staticmethod
+    def transform_to_location_file(geojson_dir:str, save_dir):
+        '''
+        Takes the perimetes file and transform each polygon to centroid and save to separate files based on their timestamp
+        '''
+
+        geojson_files = [os.path.join(geojson_dir, file) for file in os.listdir(geojson_dir)]
+
+        for file in geojson_files:
+
+            gj = json.load(open(file, 'r'))
+
+            feature_collection = {
+                'type': 'FeatureCollection',
+                'features': []
+            }
+
+            for feature in gj['features']:
+                geometry = shape(feature['geometry'])        
+                lon, lat = list(geometry.centroid.coords)[0]
+
+                feature = {
+                    "type": "Feature",
+                    "properties": feature['properties'],
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [lon, lat]
+                    }
+                }
+
+                feature_collection['features'].append(feature)
+
+            locations_dir = os.path.join(save_dir, 'locations')
+            if not os.path.exists(locations_dir):
+                os.mkdir(locations_dir)
+            output_path = os.path.join(locations_dir, os.path.basename(file))
+
+            with open(output_path, 'w') as f:
+                json.dump(feature_collection, f)
+
 if __name__ == '__main__':
-    shapefile = "./files/viirs_data/fire_nrt_J1V-C2_441088.shp"
+    shapefile = "./files/viirs_data/fire_nrt_J1V-C2_482482.shp"
     dataset = ViirsDatasetWriter(shapefile)
-    #dataset.save("data")
+
     dataset.save_by_date("data")
+
+    # BBoxes- [-124.37,32.82,-94.84,48.79], [-94.67,24.5,-71.11,43.38]
+    ViirsDatasetWriter.post_processing("data/output", [-94.67,24.5,-71.11,43.38], 70, "data")
+    ViirsDatasetWriter.transform_to_location_file('data/post-processed', 'data/')

@@ -364,7 +364,7 @@ if __name__ == "__main__":
 
     gj_path = f'{os.getenv("BASE_PERIMETERS_DIR")}/hotspots_{str(t)}.json'
     with open(gj_path, 'w') as f:
-        json.dump(geojson_featurecollection, f)
+        json.dump(geojson_featurecollection, f, default=str)
     
     # cleanup
     shutil.rmtree(os.getenv("BASE_DATA_DIR"))
