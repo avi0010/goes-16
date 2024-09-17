@@ -125,6 +125,9 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/
 #Inference
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/infer.py
 
+# Upload patches that have detection to S3 (only can be done from prod server)
+$   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/upload_patches.py
+
 #Writing to timestream database (only can be done from prod server)
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/timestream_writer.py
 ```

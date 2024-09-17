@@ -1,1515 +1,442 @@
 [
   {
-    "DeviceId": "aa-59-38-34",
-    "_id": "63652ef50370fe1c09e0ad02",
-    "Device": "aa-59-38-34",
-    "DeviceType": "ChemNode",
-    "lat": 39.10353899002075,
-    "lon": -77.19914674758911
-  },
-  {
-    "DeviceId": "aa-31-90-35",
-    "_id": "636531210370fe1c09e0ad2b",
-    "Device": "Gateway@SG Lab",
-    "DeviceType": "Gateway",
-    "lat": 39.1159471,
-    "lon": -77.183385
-  },
-  {
-    "DeviceId": "aa-22-21-95",
-    "_id": "636534580370fe1c09e0ad60",
-    "Device": "aa-22-21-95",
-    "DeviceType": "ChemNode",
-    "lat": 39.10353899002075,
-    "lon": -77.19914674758911
-  },
-  {
-    "DeviceId": "aa-59-38-04",
-    "_id": "63653715ae61051c24d4f0d5",
-    "Device": "aa-59-38-04",
-    "DeviceType": "ChemNode",
-    "lat": 39.0997002,
-    "lon": -77.2060235
-  },
-  {
-    "DeviceId": "aa-31-90-62",
-    "_id": "638e0606e0a21c9a253982cb",
-    "Device": "aa-31-90-62",
-    "DeviceType": "ChemNode",
-    "lat": 39.1159808,
-    "lon": -77.18343821886
-  },
-  {
-    "DeviceId": "aa-59-38-70",
-    "_id": "638f8a7ce0a21c9a253af1f4",
-    "Device": "aa-59-38-70",
-    "DeviceType": "ChemNode",
-    "lat": 39.10353899002075,
-    "lon": -77.19914674758911
-  },
-  {
-    "DeviceId": "00-30-12-1c",
-    "_id": "63b42761c8bc94193789a198",
-    "Device": "00-30-12-1c",
-    "DeviceType": "ChemNode",
-    "lat": 39.1159804,
-    "lon": -77.18343821885
-  },
-  {
-    "DeviceId": "00-12-06-18",
-    "_id": "640bb429324c1a68dbebf8e6",
-    "Device": "Vini's Backyard LoRa",
-    "DeviceType": "ChemNode",
-    "lat": 39.07460524700582,
-    "lon": -76.96950623765588
-  },
-  {
-    "DeviceId": "aa-31-90-23",
-    "_id": "642c0329a8b19a8959936a90",
-    "Device": "Ricardo's Backyard LTE 3.0",
-    "DeviceType": "ChemNode",
-    "lat": 39.1687629,
-    "lon": -77.2238017
-  },
-  {
-    "DeviceId": "00-26-0f-04",
-    "_id": "642c035fa8b19a8959936d28",
-    "Device": "Ricardo's Backyard LoRa 3.1",
-    "DeviceType": "ChemNode",
-    "lat": 39.1688226,
-    "lon": -77.223785
-  },
-  {
-    "DeviceId": "aa-59-38-29",
-    "_id": "642c0380a8b19a8959936e6b",
-    "Device": "Ricardo's Backyard LTE 3.1",
-    "DeviceType": "ChemNode",
-    "lat": 39.1687597,
-    "lon": -77.2237944
-  },
-  {
-    "DeviceId": "aa-22-17-35",
-    "_id": "642c061f8c4d77896d7a5b23",
-    "Device": "Ricardo's Backyard Gateway",
-    "DeviceType": "Gateway",
-    "lat": 39.1688059,
-    "lon": -77.2238128
-  },
-  {
-    "DeviceId": "00-31-2c-1a",
-    "_id": "6441835db79bde55e3139668",
-    "Device": "00-31-2c-1a",
-    "DeviceType": "ChemNode",
-    "lat": 39.1159723,
-    "lon": -77.1834361
+    "_id": "cluster-1",
+    "Device": "cluster-1",
+    "DeviceId": "cluster-1",
+    "DeviceType": "cluster",
+    "lat": 41.5323,
+    "lon": -71.1244
+  },
+  {
+    "_id": "cluster-2",
+    "Device": "cluster-2",
+    "DeviceId": "cluster-2",
+    "DeviceType": "cluster",
+    "lat": 42.0,
+    "lon": -72.0
+  },
+  {
+    "_id": "cluster-3",
+    "Device": "cluster-3",
+    "DeviceId": "cluster-3",
+    "DeviceType": "cluster",
+    "lat": 39.168812947843776,
+    "lon": -78.16119614897578
+  },
+  {
+    "_id": "cluster-4",
+    "Device": "cluster-4",
+    "DeviceId": "cluster-4",
+    "DeviceType": "cluster",
+    "lat": 39.1025,
+    "lon": -77.3886
+  },
+  {
+    "_id": "cluster-5",
+    "Device": "cluster-5",
+    "DeviceId": "cluster-5",
+    "DeviceType": "cluster",
+    "lat": 39.1918,
+    "lon": -77.3532
+  },
+  {
+    "_id": "cluster-6",
+    "Device": "cluster-6",
+    "DeviceId": "cluster-6",
+    "DeviceType": "cluster",
+    "lat": 39.2176,
+    "lon": -77.2276
+  },
+  {
+    "_id": "cluster-7",
+    "Device": "cluster-7",
+    "DeviceId": "cluster-7",
+    "DeviceType": "cluster",
+    "lat": 39.1688,
+    "lon": -77.2238
+  },
+  {
+    "_id": "cluster-8",
+    "Device": "cluster-8",
+    "DeviceId": "cluster-8",
+    "DeviceType": "cluster",
+    "lat": 39.1764,
+    "lon": -77.1492
+  },
+  {
+    "_id": "cluster-9",
+    "Device": "cluster-9",
+    "DeviceId": "cluster-9",
+    "DeviceType": "cluster",
+    "lat": 39.0528,
+    "lon": -77.2651
+  },
+  {
+    "_id": "cluster-10",
+    "Device": "cluster-10",
+    "DeviceId": "cluster-10",
+    "DeviceType": "cluster",
+    "lat": 39.0747,
+    "lon": -76.9694
+  },
+  {
+    "_id": "cluster-11",
+    "Device": "cluster-11",
+    "DeviceId": "cluster-11",
+    "DeviceType": "cluster",
+    "lat": 39.10244782580446,
+    "lon": -77.16238239447897
+  },
+  {
+    "_id": "cluster-12",
+    "Device": "cluster-12",
+    "DeviceId": "cluster-12",
+    "DeviceType": "cluster",
+    "lat": 38.8549,
+    "lon": -77.4281
+  },
+  {
+    "_id": "cluster-13",
+    "Device": "cluster-13",
+    "DeviceId": "cluster-13",
+    "DeviceType": "cluster",
+    "lat": 38.7099,
+    "lon": -77.2396
   },
   {
-    "DeviceId": "aa-22-17-10",
-    "_id": "64467c63ebfb2231afadc712",
-    "Device": "aa-22-17-10",
-    "DeviceType": "ChemNode",
-    "lat": "",
-    "lon": ""
+    "_id": "cluster-14",
+    "Device": "cluster-14",
+    "DeviceId": "cluster-14",
+    "DeviceType": "cluster",
+    "lat": 38.421,
+    "lon": -77.4057
   },
   {
-    "DeviceId": "aa-59-38-31",
-    "_id": "64467d04ebfb2231afadccde",
-    "Device": "aa-59-38-31",
-    "DeviceType": "ChemNode",
-    "lat": "",
-    "lon": ""
+    "_id": "cluster-15",
+    "Device": "cluster-15",
+    "DeviceId": "cluster-15",
+    "DeviceType": "cluster",
+    "lat": 36.96447672830266,
+    "lon": -77.07904847239766
   },
   {
-    "DeviceId": "00-9d-0f-06",
-    "_id": "64468a6aa38d5931cb0cceee",
-    "Device": "00-9d-0f-06",
-    "DeviceType": "ChemNode",
-    "lat": 39.074722258374095,
-    "lon": -76.96932351216674
+    "_id": "cluster-16",
+    "Device": "cluster-16",
+    "DeviceId": "cluster-16",
+    "DeviceType": "cluster",
+    "lat": 36.9351,
+    "lon": -77.0487
   },
   {
-    "DeviceId": "00-9d-0f-01",
-    "_id": "64468a8aa38d5931cb0ccfd1",
-    "Device": "00-9d-0f-01",
-    "DeviceType": "ChemNode",
-    "lat": 39.07482837326825,
-    "lon": -76.96937447413802
+    "_id": "cluster-17",
+    "Device": "cluster-17",
+    "DeviceId": "cluster-17",
+    "DeviceType": "cluster",
+    "lat": 40.1833,
+    "lon": -105.1493
   },
   {
-    "DeviceId": "00-8b-10-1e",
-    "_id": "64468ab4a38d5931cb0cd167",
-    "Device": "00-8b-10-1e",
-    "DeviceType": "ChemNode",
-    "lat": 39.074698789045215,
-    "lon": -76.96941303089261
+    "_id": "cluster-18",
+    "Device": "cluster-18",
+    "DeviceId": "cluster-18",
+    "DeviceType": "cluster",
+    "lat": 38.0608,
+    "lon": -105.5131
   },
   {
-    "DeviceId": "aa-59-37-98",
-    "_id": "64468c02a38d5931cb0cde2e",
-    "Device": "aa-59-37-98 GW",
-    "DeviceType": "Gateway",
-    "lat": "",
-    "lon": ""
+    "_id": "cluster-19",
+    "Device": "cluster-19",
+    "DeviceId": "cluster-19",
+    "DeviceType": "cluster",
+    "lat": 39.79368558568265,
+    "lon": -105.46906052736468
   },
   {
-    "DeviceId": "aa-59-38-25",
-    "_id": "644bd562a38d5931cb453f5e",
-    "Device": "Unit that does not conn to vzw",
-    "DeviceType": "ChemNode",
-    "lat": 39.1159801,
-    "lon": -77.1834341
+    "_id": "cluster-20",
+    "Device": "cluster-20",
+    "DeviceId": "cluster-20",
+    "DeviceType": "cluster",
+    "lat": 39.91566824961626,
+    "lon": -105.46688382240384
   },
   {
-    "DeviceId": "aa-31-90-85",
-    "_id": "644c1b71a38d5931cb480a9a",
-    "Device": "aa-31-90-85",
-    "DeviceType": "ChemNode",
-    "lat": 39.1159493,
-    "lon": -77.183444
+    "_id": "cluster-21",
+    "Device": "cluster-21",
+    "DeviceId": "cluster-21",
+    "DeviceType": "cluster",
+    "lat": 39.817653622929754,
+    "lon": -105.27751049082575
   },
   {
-    "DeviceId": "00-33-2c-0a",
-    "_id": "646e6a8f9fd4d2710921f86c",
-    "Device": "00-33-2c-0a",
-    "DeviceType": "ChemNode",
-    "lat": 39.1159482,
-    "lon": -77.1834161
+    "_id": "cluster-22",
+    "Device": "cluster-22",
+    "DeviceId": "cluster-22",
+    "DeviceType": "cluster",
+    "lat": 39.93403040069501,
+    "lon": -105.27388264922445
   },
   {
-    "DeviceId": "00-27-0e-0c",
-    "_id": "646e6abd9fd4d2710921fc50",
-    "Device": "00-27-0e-0c",
-    "DeviceType": "ChemNode",
-    "lat": 39.1159282,
-    "lon": -77.18341616
+    "_id": "cluster-23",
+    "Device": "cluster-23",
+    "DeviceId": "cluster-23",
+    "DeviceType": "cluster",
+    "lat": 33.635314365050704,
+    "lon": -117.75434047971375
   },
   {
-    "DeviceId": "aa-87-26-09",
-    "_id": "646e6adc9fd4d2710921fee5",
-    "Device": "aa-87-26-09",
-    "DeviceType": "ChemNode",
-    "lat": 39.11595248168284,
-    "lon": -77.18336425204181
+    "_id": "cluster-24",
+    "Device": "cluster-24",
+    "DeviceId": "cluster-24",
+    "DeviceType": "cluster",
+    "lat": 43.5696,
+    "lon": -116.2109
   },
   {
-    "DeviceId": "aa-22-16-93",
-    "_id": "646e6af49fd4d271092200e7",
-    "Device": "aa-22-16-93",
-    "DeviceType": "ChemNode",
-    "lat": 39.1159585,
-    "lon": -77.183416
+    "_id": "cluster-25",
+    "Device": "cluster-25",
+    "DeviceId": "cluster-25",
+    "DeviceType": "cluster",
+    "lat": 37.1849,
+    "lon": -121.9852
   },
   {
-    "DeviceId": "aa-bb-11-22",
-    "_id": "6478e7e762ed3cf3854d2249",
-    "Device": "Intoxic-Xav",
-    "DeviceType": "ChemNode",
-    "lat": 3,
-    "lon": -2
+    "_id": "cluster-26",
+    "Device": "cluster-26",
+    "DeviceId": "cluster-26",
+    "DeviceType": "cluster",
+    "lat": 37.4715,
+    "lon": -122.13
   },
   {
-    "DeviceId": "00-0d-08-12",
-    "_id": "638524d696c594f809617dd7",
-    "Device": "Debi's ChemNode",
-    "DeviceType": "ChemNode",
-    "lat": 40.18328905105591,
-    "lon": -105.14926671981812
+    "_id": "cluster-27",
+    "Device": "cluster-27",
+    "DeviceId": "cluster-27",
+    "DeviceType": "cluster",
+    "lat": 37.8403,
+    "lon": -122.1977
   },
   {
-    "DeviceId": "aa-31-91-74",
-    "_id": "63a48bdd37b67b8f1c9ef68f",
-    "Device": "Adrian #1",
-    "DeviceType": "ChemNode",
-    "lat": 38.0607679579407,
-    "lon": -105.51308238878846
+    "_id": "cluster-28",
+    "Device": "cluster-28",
+    "DeviceId": "cluster-28",
+    "DeviceType": "cluster",
+    "lat": 37.7363,
+    "lon": -122.1324
   },
   {
-    "DeviceId": "00-0b-14-14",
-    "_id": "63a1da7537b31972395908e5",
-    "Device": "00-0b-14-14-LOBBY",
-    "DeviceType": "ChemNode",
-    "lat": 39.1037,
-    "lon": -77.19883
+    "_id": "cluster-29",
+    "Device": "cluster-29",
+    "DeviceId": "cluster-29",
+    "DeviceType": "cluster",
+    "lat": 38.34574680652176,
+    "lon": -122.51555438818005
   },
   {
-    "DeviceId": "aa-31-90-47",
-    "_id": "63a1de2937b3197239590c61",
-    "Device": "aa-31-90-47",
-    "DeviceType": "Gateway",
-    "lat": "",
-    "lon": ""
+    "_id": "cluster-30",
+    "Device": "cluster-30",
+    "DeviceId": "cluster-30",
+    "DeviceType": "cluster",
+    "lat": 38.7633,
+    "lon": -121.1622
   },
   {
-    "DeviceId": "00-12-08-11",
-    "_id": "63a1de5d37b3197239590ca5",
-    "Device": "00-12-08-11 - LAKE",
-    "DeviceType": "ChemNode",
-    "lat": 39.10447,
-    "lon": -77.19872
+    "_id": "cluster-31",
+    "Device": "cluster-31",
+    "DeviceId": "cluster-31",
+    "DeviceType": "cluster",
+    "lat": 39.1892,
+    "lon": -119.6796
   },
   {
-    "DeviceId": "aa-31-90-45",
-    "_id": "63c4db183c2ce4ad8584c3c8",
-    "Device": "aa-31-90-45",
-    "DeviceType": "ChemNode",
-    "lat": 39.82860001735389,
-    "lon": -105.54573895409703
+    "_id": "cluster-32",
+    "Device": "cluster-32",
+    "DeviceId": "cluster-32",
+    "DeviceType": "cluster",
+    "lat": 39.3899,
+    "lon": -123.7331
   },
   {
-    "DeviceId": "aa-31-90-78",
-    "_id": "63c4db433c2ce4ad8584c42b",
-    "Device": "aa-31-90-78",
-    "DeviceType": "ChemNode",
-    "lat": 39.886379996314645,
-    "lon": -105.4457120038569
+    "_id": "cluster-33",
+    "Device": "cluster-33",
+    "DeviceId": "cluster-33",
+    "DeviceType": "cluster",
+    "lat": 39.341,
+    "lon": -123.5396
   },
   {
-    "DeviceId": "aa-59-38-26",
-    "_id": "63c4dbae3c2ce4ad8584c52e",
-    "Device": "aa-59-38-26",
-    "DeviceType": "ChemNode",
-    "lat": 39.91136192344129,
-    "lon": -105.51964206621051
+    "_id": "cluster-34",
+    "Device": "cluster-34",
+    "DeviceId": "cluster-34",
+    "DeviceType": "cluster",
+    "lat": 40.887,
+    "lon": -123.9991
   },
   {
-    "DeviceId": "aa-59-37-96",
-    "_id": "63c4dc0a3c2ce4ad8584c650",
-    "Device": "aa-59-37-96",
-    "DeviceType": "ChemNode",
-    "lat": 39.8972184676677,
-    "lon": -105.42949168011546
+    "_id": "cluster-35",
+    "Device": "cluster-35",
+    "DeviceId": "cluster-35",
+    "DeviceType": "cluster",
+    "lat": 41.25461058842805,
+    "lon": -122.1099632451367
   },
   {
-    "DeviceId": "aa-59-38-11",
-    "_id": "63c4dc413c2ce4ad8584c6fa",
-    "Device": "aa-59-38-11",
-    "DeviceType": "ChemNode",
-    "lat": 39.877678072080016,
-    "lon": -105.51125915721059
+    "_id": "cluster-36",
+    "Device": "cluster-36",
+    "DeviceId": "cluster-36",
+    "DeviceType": "cluster",
+    "lat": 41.263264304148976,
+    "lon": -122.30723152040702
   },
   {
-    "DeviceId": "aa-59-38-47",
-    "_id": "63d04d8269df72ad6bc6efc7",
-    "Device": "aa-59-38-47 - Swap/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.90207494236529,
-    "lon": -105.51976511254907
+    "_id": "cluster-37",
+    "Device": "cluster-37",
+    "DeviceId": "cluster-37",
+    "DeviceType": "cluster",
+    "lat": 41.381148573893825,
+    "lon": -122.40850024901502
   },
   {
-    "DeviceId": "aa-59-38-36",
-    "_id": "63d066443c2ce4ad85ac5860",
-    "Device": "aa-59-38-36 - Swap/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.89315616,
-    "lon": -105.52448294138063
+    "_id": "cluster-38",
+    "Device": "cluster-38",
+    "DeviceId": "cluster-38",
+    "DeviceType": "cluster",
+    "lat": 41.485372588464,
+    "lon": -122.52726244592618
   },
   {
-    "DeviceId": "aa-59-38-44",
-    "_id": "63d067783c2ce4ad85ac5c04",
-    "Device": "aa-59-38-44 - Swap/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.83690380118787,
-    "lon": -105.52237724885345
+    "_id": "cluster-39",
+    "Device": "cluster-39",
+    "DeviceId": "cluster-39",
+    "DeviceType": "cluster",
+    "lat": 41.48947938598741,
+    "lon": -122.32935139397844
   },
   {
-    "DeviceId": "aa-59-38-46",
-    "_id": "63d069e63c2ce4ad85ac647a",
-    "Device": "aa-59-38-46 - Swap/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.85467896796763,
-    "lon": -105.27043333277106
-  },
-  {
-    "DeviceId": "aa-59-38-10",
-    "_id": "63d06a3969df72ad6bc74dab",
-    "Device": "aa-59-38-10",
-    "DeviceType": "ChemNode",
-    "lat": 39.877678072080016,
-    "lon": -105.51175905391574
-  },
-  {
-    "DeviceId": "aa-59-38-53",
-    "_id": "63d131aa3c2ce4ad85af055b",
-    "Device": "aa-59-38-53",
-    "DeviceType": "ChemNode",
-    "lat": 39.87524195574224,
-    "lon": -105.43720001354814
-  },
-  {
-    "DeviceId": "aa-31-90-55",
-    "_id": "63d191183c2ce4ad85b0303b",
-    "Device": "aa-31-90-55 - Swap/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.947832925245166,
-    "lon": -105.44323297217488
-  },
-  {
-    "DeviceId": "aa-22-16-91",
-    "_id": "63d7e1597cf6c66a2257844c",
-    "Device": "aa-22-16-91  - Return/Restock",
-    "DeviceType": "ChemNode",
-    "lat": 39.892443,
-    "lon": -105.524838
-  },
-  {
-    "DeviceId": "aa-59-38-30",
-    "_id": "63d974657cf6c66a225db891",
-    "Device": "aa-59-38-30",
-    "DeviceType": "ChemNode",
-    "lat": 39.89109096117318,
-    "lon": -105.5103569291532
-  },
-  {
-    "DeviceId": "aa-31-90-28",
-    "_id": "64270a5c8c4d77896d4e182f",
-    "Device": "aa-31-90-28",
-    "DeviceType": "ChemNode",
-    "lat": 39.77977895177901,
-    "lon": -105.34991590306163
-  },
-  {
-    "DeviceId": "aa-59-38-35",
-    "_id": "6442d06bb79bde55e31ed96a",
-    "Device": "aa-59-38-35 - Stock",
-    "DeviceType": "ChemNode",
-    "lat": 39.07473117,
-    "lon": -76.96938668
-  },
-  {
-    "DeviceId": "aa-59-38-17",
-    "_id": "6442d0c4b79bde55e31edc10",
-    "Device": "aa-59-38-17 - Antenna",
-    "DeviceType": "ChemNode",
-    "lat": 39.917799,
-    "lon": -105.523065
-  },
-  {
-    "DeviceId": "aa-31-90-26",
-    "_id": "6442d108b79bde55e31ede20",
-    "Device": "aa-31-90-26 - Find",
-    "DeviceType": "ChemNode",
-    "lat": "",
-    "lon": ""
-  },
-  {
-    "DeviceId": "aa-31-90-48",
-    "_id": "6442d178b79bde55e31ee1a7",
-    "Device": "aa-31-90-48 - Antenna",
-    "DeviceType": "ChemNode",
-    "lat": 39.873433,
-    "lon": -105.460039
-  },
-  {
-    "DeviceId": "aa-31-90-88",
-    "_id": "6442d27f6613f85600ab2dd1",
-    "Device": "aa-31-90-88 - Stock",
-    "DeviceType": "ChemNode",
-    "lat": "",
-    "lon": ""
-  },
-  {
-    "DeviceId": "aa-59-38-12",
-    "_id": "6442d2bf6613f85600ab3013",
-    "Device": "aa-59-38-12 - Stock",
-    "DeviceType": "ChemNode",
-    "lat": "",
-    "lon": ""
-  },
-  {
-    "DeviceId": "aa-59-38-18",
-    "_id": "6442d2e46613f85600ab314f",
-    "Device": "aa-59-38-18 - Return/Restock",
-    "DeviceType": "ChemNode",
-    "lat": 39.849291,
-    "lon": -105.571935
-  },
-  {
-    "DeviceId": "aa-59-38-66",
-    "_id": "6442d3d96613f85600ab389d",
-    "Device": "aa-59-38-66 - Swap/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.864713,
-    "lon": -105.571164
-  },
-  {
-    "DeviceId": "aa-27-83-94",
-    "_id": "6442d7006613f85600ab5486",
-    "Device": "aa-27-83-94 - Swap/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.849291,
-    "lon": -105.571935
-  },
-  {
-    "DeviceId": "aa-27-84-45",
-    "_id": "6442d72c6613f85600ab55ca",
-    "Device": "aa-27-84-45 - Swap/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.775358,
-    "lon": -105.27463
-  },
-  {
-    "DeviceId": "aa-22-17-46",
-    "_id": "6442d74d6613f85600ab56d6",
-    "Device": "aa-22-17-46",
-    "DeviceType": "ChemNode",
-    "lat": 39.820524,
-    "lon": -105.307192
-  },
-  {
-    "DeviceId": "aa-22-16-68",
-    "_id": "6442d7736613f85600ab5894",
-    "Device": "aa-22-16-68",
-    "DeviceType": "ChemNode",
-    "lat": 39.798104,
-    "lon": -105.432639
-  },
-  {
-    "DeviceId": "aa-22-22-73",
-    "_id": "6442d7976613f85600ab59ec",
-    "Device": "aa-22-22-73",
-    "DeviceType": "ChemNode",
-    "lat": 39.819647,
-    "lon": -105.510536
-  },
-  {
-    "DeviceId": "aa-22-21-85",
-    "_id": "6442d7c76613f85600ab5b5b",
-    "Device": "aa-22-21-85",
-    "DeviceType": "ChemNode",
-    "lat": 39.832501,
-    "lon": -105.560361
-  },
-  {
-    "DeviceId": "aa-59-38-43",
-    "_id": "646448dc6c9c9b23abb93831",
-    "Device": "aa-59-38-43 - Swap/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.8472,
-    "lon": -105.3394
-  },
-  {
-    "DeviceId": "aa-31-91-86",
-    "_id": "64644b936c9c9b23abb9b7ed",
-    "Device": "aa-31-91-86",
-    "DeviceType": "ChemNode",
-    "lat": 39.8337,
-    "lon": -105.4346
-  },
-  {
-    "DeviceId": "aa-59-37-97",
-    "_id": "64644bed6c9c9b23abb9c81c",
-    "Device": "aa-59-37-97",
-    "DeviceType": "ChemNode",
-    "lat": 39.959588,
-    "lon": -105.328872
-  },
-  {
-    "DeviceId": "aa-87-26-07",
-    "_id": "6475ff0d62ed3cf3850c751a",
-    "Device": "aa-87-26-07 - Card/Reloc",
-    "DeviceType": "ChemNode",
-    "lat": 39.821456,
-    "lon": -105.520909
-  },
-  {
-    "DeviceId": "aa-31-90-67",
-    "_id": "63e402921dc64cd8033c2ba7",
-    "Device": "aa-31-90-67",
-    "DeviceType": "ChemNode",
-    "lat": 36.92775207571685,
-    "lon": -77.08084708079696
-  },
-  {
-    "DeviceId": "aa-31-91-97",
-    "_id": "63e402a81dc64cd8033c2c54",
-    "Device": "aa-31-91-97",
-    "DeviceType": "ChemNode",
-    "lat": 36.935085067525506,
-    "lon": -77.04870583489537
-  },
-  {
-    "DeviceId": "aa-87-26-25",
-    "_id": "64135555f277cdabba814b40",
-    "Device": "aa-87-26-25",
-    "DeviceType": "ChemNode",
-    "lat": 36.952143078669906,
-    "lon": -77.08653906360269
-  },
-  {
-    "DeviceId": "aa-22-21-57",
-    "_id": "646646ed6c9c9b23ab0fd99c",
-    "Device": "aa-22-21-57 - Filtered",
-    "DeviceType": "ChemNode",
-    "lat": 36.972625732421875,
-    "lon": -77.07768340628424
-  },
-  {
-    "DeviceId": "aa-22-22-12",
-    "_id": "6466470c6c9c9b23ab0fde84",
-    "Device": "aa-22-22-12-Filtered",
-    "DeviceType": "ChemNode",
-    "lat": 36.9508549477905,
-    "lon": -77.06002609804273
-  },
-  {
-    "DeviceId": "aa-22-16-25",
-    "_id": "646647276c9c9b23ab0fe2e8",
-    "Device": "aa-22-16-25-Filtered",
-    "DeviceType": "ChemNode",
-    "lat": 36.97052001953125,
-    "lon": -77.06602717886126
-  },
-  {
-    "DeviceId": "aa-22-22-4",
-    "_id": "63dc3ac37cf6c66a22671fe9",
-    "Device": "aa-22-22-04 (VERN)",
-    "DeviceType": "ChemNode",
-    "lat": 45.8531,
-    "lon": -123.24752
-  },
-  {
-    "DeviceId": "aa-22-22-30",
-    "_id": "63dd9bca7b6328d81fdbb154",
-    "Device": "AA-22-22-30 (VITI)",
-    "DeviceType": "ChemNode",
-    "lat": 44.28157,
-    "lon": -123.31808
-  },
-  {
-    "DeviceId": "aa-22-22-34",
-    "_id": "63e2c1037b6328d81ffd2261",
-    "Device": "AA-22-22-34 (DNIS)",
-    "DeviceType": "ChemNode",
-    "lat": 44.53494,
-    "lon": -122.93098
-  },
-  {
-    "DeviceId": "aa-22-16-60",
-    "_id": "63e5895f7b6328d81f0f8e24",
-    "Device": "AA-22-16-60 (ALSE)",
-    "DeviceType": "ChemNode",
-    "lat": 44.38182,
-    "lon": -123.59042
-  },
-  {
-    "DeviceId": "aa-22-22-35",
-    "_id": "63ffe5094ac7dc68c75b43cc",
-    "Device": "aa-22-22-35 (WYLD)",
-    "DeviceType": "ChemNode",
-    "lat": 43.14447,
-    "lon": -123.42921
-  },
-  {
-    "DeviceId": "aa-22-22-40",
-    "_id": "643444e2acf5e7daee39bd3c",
-    "Device": "AA-22-22-40 (Rachel)",
-    "DeviceType": "ChemNode",
-    "lat": 43.749500497482906,
-    "lon": -122.47582956760272
-  },
-  {
-    "DeviceId": "aa-22-17-05",
-    "_id": "6446d9b1a38d5931cb0fcea2",
-    "Device": "AA-22-17-05 (SISQ)",
-    "DeviceType": "ChemNode",
-    "lat": 42.27544,
-    "lon": -123.63241
-  },
-  {
-    "DeviceId": "aa-87-26-12",
-    "_id": "644bf32cebfb2231afe7fd53",
-    "Device": "AA-87-26-12 (CAVE)",
-    "DeviceType": "ChemNode",
-    "lat": 42.1186,
-    "lon": -123.57971
-  },
-  {
-    "DeviceId": "aa-27-83-56",
-    "_id": "6452e8266ba5e893dfee101f",
-    "Device": "AA-27-83-56 (Crestview)",
-    "DeviceType": "ChemNode",
-    "lat": 44.00137,
-    "lon": -123.10846
-  },
-  {
-    "DeviceId": "aa-22-22-13",
-    "_id": "645426a06ba5e893df1ee40b",
-    "Device": "AA-22-22-13 (RNO2)",
-    "DeviceType": "ChemNode",
-    "lat": 43.91228,
-    "lon": -123.7387
-  },
-  {
-    "DeviceId": "aa-22-16-87",
-    "_id": "64593538b0c5cd93c61e44ca",
-    "Device": "AA-22-16-87 (LONE)",
-    "DeviceType": "ChemNode",
-    "lat": 43.36332,
-    "lon": -123.05769
-  },
-  {
-    "DeviceId": "aa-22-22-38",
-    "_id": "646ba8f39fd4d27109ed2f44",
-    "Device": "AA-22-22-38 (FHAC)",
-    "DeviceType": "ChemNode",
-    "lat": 44.33858,
-    "lon": -121.33952
-  },
-  {
-    "DeviceId": "aa-22-22-44",
-    "_id": "646fe9ad6928a27123da117a",
-    "Device": "AA-22-22-44 (LEAB)",
-    "DeviceType": "ChemNode",
-    "lat": 44.1246,
-    "lon": -122.62564
-  },
-  {
-    "DeviceId": "mdoe5e",
-    "_id": "63f31b911052cd8da0f7be5b",
-    "Device": "D-03-X23",
-    "DeviceType": "Gateway",
-    "lat": 21.0902,
-    "lon": -92.7129
-  },
-  {
-    "DeviceId": "ab-12-cd-10",
-    "_id": "646bbc056928a27123874b52",
-    "Device": "T D V",
-    "DeviceType": "ChemNode",
-    "lat": "",
-    "lon": ""
-  },
-  {
-    "DeviceId": "aa-22-16-28",
-    "_id": "640a5c374ac7dc68c79adfc9",
-    "Device": "aa-22-16-28",
-    "DeviceType": "ChemNode",
-    "lat": 41.2252,
-    "lon": -122.2759
-  },
-  {
-    "DeviceId": "aa-87-26-26",
-    "_id": "640a5c5e4ac7dc68c79ae093",
-    "Device": "aa-87-26-26",
-    "DeviceType": "ChemNode",
-    "lat": 41.2425,
-    "lon": -122.135
-  },
-  {
-    "DeviceId": "aa-59-38-27",
-    "_id": "640a5c8e4ac7dc68c79ae1ce",
-    "Device": "aa-59-38-27",
-    "DeviceType": "ChemNode",
-    "lat": 41.3706,
-    "lon": -122.3701
-  },
-  {
-    "DeviceId": "aa-59-38-4",
-    "_id": "640a5cae4ac7dc68c79ae2c6",
-    "Device": "aa-59-38-4",
-    "DeviceType": "ChemNode",
-    "lat": 41.5117,
-    "lon": -122.4672
-  },
-  {
-    "DeviceId": "aa-22-16-48",
-    "_id": "640b7c544ac7dc68c7a2bbc2",
-    "Device": "aa-22-16-48",
-    "DeviceType": "ChemNode",
-    "lat": 41.5106,
-    "lon": -122.5286
-  },
-  {
-    "DeviceId": "aa-59-38-63",
-    "_id": "640f5bb61287678467a1f8e3",
-    "Device": "aa-59-38-63",
-    "DeviceType": "ChemNode",
-    "lat": 41.4708,
-    "lon": -122.4764
-  },
-  {
-    "DeviceId": "aa-59-38-38",
-    "_id": "640f5bea1287678467a1fa19",
-    "Device": "aa-59-38-38",
-    "DeviceType": "ChemNode",
-    "lat": 41.4733,
-    "lon": -122.5808
-  },
-  {
-    "DeviceId": "aa-22-22-41",
-    "_id": "640f5c121287678467a1fb3a",
-    "Device": "aa-22-22-41",
-    "DeviceType": "ChemNode",
-    "lat": 41.5033,
-    "lon": -122.3633
-  },
-  {
-    "DeviceId": "aa-87-26-5",
-    "_id": "640f5c3c1287678467a1fc54",
-    "Device": "aa-87-26-5",
-    "DeviceType": "ChemNode",
-    "lat": 41.4111,
-    "lon": -122.4339
-  },
-  {
-    "DeviceId": "aa-22-22-1",
-    "_id": "640f5cd81287678467a200aa",
-    "Device": "aa-22-22-1",
-    "DeviceType": "ChemNode",
-    "lat": 41.2628,
-    "lon": -122.2694
-  },
-  {
-    "DeviceId": "aa-22-21-94",
-    "_id": "640f5d0c1287678467a2021d",
-    "Device": "aa-22-21-94",
-    "DeviceType": "ChemNode",
-    "lat": 41.7689,
-    "lon": -123.4056
-  },
-  {
-    "DeviceId": "aa-22-16-27",
-    "_id": "640f5d4c1287678467a20410",
-    "Device": "aa-22-16-27",
-    "DeviceType": "ChemNode",
-    "lat": 41.7903,
-    "lon": -123.3864
-  },
-  {
-    "DeviceId": "aa-27-90-56",
-    "_id": "640f5d9e1287678467a2067b",
-    "Device": "aa-27-90-56",
-    "DeviceType": "ChemNode",
-    "lat": 41.8522,
-    "lon": -123.3881
-  },
-  {
-    "DeviceId": "aa-27-84-15",
-    "_id": "640f5dd51287678467a207e1",
-    "Device": "aa-27-84-15",
-    "DeviceType": "ChemNode",
-    "lat": 41.8617,
-    "lon": -123.3739
-  },
-  {
-    "DeviceId": "aa-22-22-14",
-    "_id": "640f5e291287678467a20a1d",
-    "Device": "aa-22-22-14",
-    "DeviceType": "ChemNode",
+    "_id": "cluster-40",
+    "Device": "cluster-40",
+    "DeviceId": "cluster-40",
+    "DeviceType": "cluster",
     "lat": 41.8267,
     "lon": -123.3836
   },
   {
-    "DeviceId": "aa-59-38-50",
-    "_id": "640f5ede2c8b70847b02fab7",
-    "Device": "aa-59-38-50",
-    "DeviceType": "ChemNode",
-    "lat": 41.2986,
-    "lon": -122.2856
-  },
-  {
-    "DeviceId": "aa-22-21-93",
-    "_id": "640f60e22c8b70847b03099b",
-    "Device": "aa-22-21-93",
-    "DeviceType": "ChemNode",
-    "lat": 41.2536,
-    "lon": -122.0748
-  },
-  {
-    "DeviceId": "aa-22-16-59",
-    "_id": "640f63662c8b70847b031cc4",
-    "Device": "aa-22-16-59",
-    "DeviceType": "ChemNode",
-    "lat": 41.2592,
-    "lon": -122.1244
-  },
-  {
-    "DeviceId": "aa-22-22-85",
-    "_id": "644ff995f3d12e80d2968f8c",
-    "Device": "aa-22-22-85",
-    "DeviceType": "ChemNode",
-    "lat": 41.796111,
-    "lon": -123.345
-  },
-  {
-    "DeviceId": "aa-22-21-60",
-    "_id": "6452b573b0c5cd93c61569c8",
-    "Device": "aa-22-21-60",
-    "DeviceType": "ChemNode",
-    "lat": 41.5036,
-    "lon": -122.5814
-  },
-  {
-    "DeviceId": "fake-aa-00-00-00",
-    "_id": "640b96f44ac7dc68c7a3738c",
-    "Device": "fake-aa-00-00-00",
-    "DeviceType": "ChemNode",
-    "lat": 32,
-    "lon": -72
-  },
-  {
-    "DeviceId": "00-2a-2c-14",
-    "_id": "644803f6a38d5931cb1bdc14",
-    "Device": "00-2a-2c-14",
-    "DeviceType": "ChemNode",
-    "lat": 39.338889,
-    "lon": -123.5525
-  },
-  {
-    "DeviceId": "aa-59-38-21",
-    "_id": "64480448a38d5931cb1bdf38",
-    "Device": "aa-59-38-21",
-    "DeviceType": "Gateway",
-    "lat": 39.340833,
-    "lon": -123.539444
-  },
-  {
-    "DeviceId": "00-22-0e-16",
-    "_id": "644805a0a38d5931cb1beca6",
-    "Device": "00-22-0e-16",
-    "DeviceType": "ChemNode",
-    "lat": 39.340556,
-    "lon": -123.546667
-  },
-  {
-    "DeviceId": "00-2d-12-17",
-    "_id": "64480890ebfb2231afbd8139",
-    "Device": "00-2d-12-17",
-    "DeviceType": "ChemNode",
-    "lat": 39.340833,
-    "lon": -123.539444
-  },
-  {
-    "DeviceId": "00-2f-2f-11",
-    "_id": "64480931ebfb2231afbd87a1",
-    "Device": "00-2f-2f-11",
-    "DeviceType": "ChemNode",
-    "lat": 39.337778,
-    "lon": -123.506667
-  },
-  {
-    "DeviceId": "00-27-2f-0c",
-    "_id": "64480a31a38d5931cb1c1ba2",
-    "Device": "00-27-2f-0c",
-    "DeviceType": "ChemNode",
-    "lat": 39.339722,
-    "lon": -123.510278
-  },
-  {
-    "DeviceId": "00-28-2f-17",
-    "_id": "64480ab1a38d5931cb1c20ce",
-    "Device": "00-28-2f-17",
-    "DeviceType": "ChemNode",
-    "lat": 39.340556,
-    "lon": -123.549167
-  },
-  {
-    "DeviceId": "aa-59-38-39",
-    "_id": "64496026ebfb2231afcc0db6",
-    "Device": "aa-59-38-39",
-    "DeviceType": "Gateway",
-    "lat": 39.340556,
-    "lon": -123.546667
-  },
-  {
-    "DeviceId": "aa-59-38-54",
-    "_id": "64496077ebfb2231afcc10a4",
-    "Device": "aa-59-38-54",
-    "DeviceType": "Gateway",
-    "lat": 39.339722,
-    "lon": -123.510278
-  },
-  {
-    "DeviceId": "aa-59-38-16",
-    "_id": "644960b9ebfb2231afcc12f6",
-    "Device": "aa-59-38-16",
-    "DeviceType": "Gateway",
-    "lat": 39.337778,
-    "lon": -123.506667
-  },
-  {
-    "DeviceId": "00-9d-09-1f",
-    "_id": "6452a00eb0c5cd93c6146aa3",
-    "Device": "00-9d-09-1f",
-    "DeviceType": "ChemNode",
-    "lat": 39.341111,
-    "lon": -123.543333
-  },
-  {
-    "DeviceId": "aa-22-22-71",
-    "_id": "6442cb89b79bde55e31eb02d",
-    "Device": "aa-22-22-71",
-    "DeviceType": "ChemNode",
-    "lat": 38.824722,
-    "lon": -111.486389
-  },
-  {
-    "DeviceId": "aa-22-16-58",
-    "_id": "6442cbfab79bde55e31eb42d",
-    "Device": "aa-22-16-58",
-    "DeviceType": "ChemNode",
-    "lat": 38.79706429786886,
-    "lon": -111.46065968099185
-  },
-  {
-    "DeviceId": "aa-31-90-12",
-    "_id": "6442ccefb79bde55e31ebc81",
-    "Device": "aa-31-90-12",
-    "DeviceType": "ChemNode",
-    "lat": 38.809444,
-    "lon": -111.517222
-  },
-  {
-    "DeviceId": "aa-87-26-11",
-    "_id": "6442cd63b79bde55e31ec003",
-    "Device": "aa-87-26-11",
-    "DeviceType": "ChemNode",
-    "lat": 38.824722,
-    "lon": -111.486389
-  },
-  {
-    "DeviceId": "aa-22-16-73",
-    "_id": "6442cd88b79bde55e31ec135",
-    "Device": "aa-22-16-73",
-    "DeviceType": "ChemNode",
-    "lat": 38.81762078966853,
-    "lon": -111.46014318811842
-  },
-  {
-    "DeviceId": "aa-22-17-27",
-    "_id": "6442cdb3b79bde55e31ec297",
-    "Device": "aa-22-17-27",
-    "DeviceType": "ChemNode",
-    "lat": 38.81767395851642,
-    "lon": -111.4601695086661
-  },
-  {
-    "DeviceId": "aa-22-22-45",
-    "_id": "6442cdefb79bde55e31ec483",
-    "Device": "aa-22-22-45",
-    "DeviceType": "ChemNode",
-    "lat": 38.82634031809611,
-    "lon": -111.48621624458728
-  },
-  {
-    "DeviceId": "aa-22-21-86",
-    "_id": "6442ce15b79bde55e31ec638",
-    "Device": "aa-22-21-86",
-    "DeviceType": "ChemNode",
-    "lat": 38.81763724505506,
-    "lon": -111.46015997883075
-  },
-  {
-    "DeviceId": "aa-31-90-59",
-    "_id": "646d35649fd4d2710909d3f2",
-    "Device": "aa-31-90-59",
-    "DeviceType": "ChemNode",
-    "lat": 38.797778,
-    "lon": -111.507222
-  },
-  {
-    "DeviceId": "aa-22-17-22",
-    "_id": "644931e8a38d5931cb28c742",
-    "Device": "Sensor_4_BC_vieux_poste",
-    "DeviceType": "ChemNode",
-    "lat": 49.187564,
-    "lon": -68.239902
-  },
-  {
-    "DeviceId": "aa-22-22-86",
-    "_id": "6449320ba38d5931cb28c91d",
-    "Device": "Sensor_9_BC_usine_de_traitement_eau",
-    "DeviceType": "ChemNode",
-    "lat": 49.209711,
-    "lon": -68.23841
-  },
-  {
-    "DeviceId": "aa-87-26-21",
-    "_id": "64493225a38d5931cb28ca0b",
-    "Device": "Sensor_1_BC_SOPFEU",
-    "DeviceType": "ChemNode",
-    "lat": 49.138133,
-    "lon": -68.195633
-  },
-  {
-    "DeviceId": "aa-22-16-85",
-    "_id": "6449324aa38d5931cb28cb75",
-    "Device": "Sensor_10_BC_Depot_a_neige",
-    "DeviceType": "ChemNode",
-    "lat": 49.216172,
-    "lon": -68.176537
-  },
-  {
-    "DeviceId": "aa-22-22-72",
-    "_id": "64493268a38d5931cb28ccba",
-    "Device": "Sensor_2_BC_Etangs_Aere",
-    "DeviceType": "ChemNode",
-    "lat": 49.20245,
-    "lon": -68.206466
-  },
-  {
-    "DeviceId": "aa-22-17-38",
-    "_id": "64493296a38d5931cb28ce9d",
-    "Device": "Sensor 19 MGRS 19T CN 02120 11150",
-    "DeviceType": "ChemNode",
-    "lat": 47.0241667,
-    "lon": -71.60416638888888
-  },
-  {
-    "DeviceId": "aa-87-26-17",
-    "_id": "644932b0a38d5931cb28cf9d",
-    "Device": "Sensor 10 MGRS 19T CN 04612 00300",
-    "DeviceType": "ChemNode",
-    "lat": 46.927457,
-    "lon": -71.566608
-  },
-  {
-    "DeviceId": "aa-22-22-28",
-    "_id": "644932cca38d5931cb28d0cc",
-    "Device": "Sensor 12 MGRS 19T CN 05186 05922",
-    "DeviceType": "ChemNode",
-    "lat": 46.978211165449835,
-    "lon": -71.56145822263468
-  },
-  {
-    "DeviceId": "aa-87-26-20",
-    "_id": "644932eca38d5931cb28d1f2",
-    "Device": "Sensor_3_BC_Societe_de_Parcs",
-    "DeviceType": "ChemNode",
-    "lat": 49.194533,
-    "lon": -68.246466
-  },
-  {
-    "DeviceId": "aa-27-79-61",
-    "_id": "6449330ca38d5931cb28d34b",
-    "Device": "Sensor 18 MGRS 19T BN 9790 0820",
-    "DeviceType": "ChemNode",
-    "lat": 46.996525,
-    "lon": -71.65816
-  },
-  {
-    "DeviceId": "aa-22-16-69",
-    "_id": "64493411ebfb2231afca5a6f",
-    "Device": "Sensor_7_BC_Ski_hill_top",
-    "DeviceType": "ChemNode",
-    "lat": 49.28634,
-    "lon": -68.174307
-  },
-  {
-    "DeviceId": "aa-22-21-68",
-    "_id": "6449344cebfb2231afca5cec",
-    "Device": "Sensor 3 MGRS 19T CN 02248 05380",
-    "DeviceType": "ChemNode",
-    "lat": 46.9722,
-    "lon": -71.6001
-  },
-  {
-    "DeviceId": "aa-22-17-44",
-    "_id": "64493485ebfb2231afca5faa",
-    "Device": "Sensor 4 MGRS 19T CM 02548 99995",
-    "DeviceType": "ChemNode",
-    "lat": 46.9241667,
-    "lon": -71.5936111111111
-  },
-  {
-    "DeviceId": "aa-27-84-77",
-    "_id": "644934c6ebfb2231afca6228",
-    "Device": "Sensor 13 MGRS 19T CN 07020 08089",
-    "DeviceType": "ChemNode",
-    "lat": 46.9982,
-    "lon": -71.5383
-  },
-  {
-    "DeviceId": "aa-22-21-74",
-    "_id": "644934f3ebfb2231afca63ec",
-    "Device": "Sensor 11 MGRS 19T CM 05949 99821",
-    "DeviceType": "ChemNode",
-    "lat": 46.9236111,
-    "lon": -71.54888888888888
-  },
-  {
-    "DeviceId": "aa-22-16-41",
-    "_id": "64493527ebfb2231afca661b",
-    "Device": "Sensor 16 MGRS 19T CN 00066 04978",
-    "DeviceType": "ChemNode",
-    "lat": 46.9680556,
-    "lon": -71.62833333333333
-  },
-  {
-    "DeviceId": "aa-27-84-29",
-    "_id": "64493546ebfb2231afca674e",
-    "Device": "Sensor_8_BC_Rue_Morel",
-    "DeviceType": "ChemNode",
-    "lat": 49.18906,
-    "lon": -68.31143
-  },
-  {
-    "DeviceId": "aa-22-21-92",
-    "_id": "6449355eebfb2231afca684b",
-    "Device": "Sensor 1 MGRS 19T CN 04299 03542",
-    "DeviceType": "ChemNode",
-    "lat": 46.95666874231047,
-    "lon": -71.57214763063394
-  },
-  {
-    "DeviceId": "aa-22-17-13",
-    "_id": "64493578ebfb2231afca6983",
-    "Device": "Sensor 5 MGRS 19T CN 05329 04219",
-    "DeviceType": "ChemNode",
-    "lat": 46.962497222222225,
-    "lon": -71.55941388888888
-  },
-  {
-    "DeviceId": "aa-22-16-92",
-    "_id": "644935a3ebfb2231afca6bb8",
-    "Device": "Sensor 20 MGRS 19T CN 04675 11298",
-    "DeviceType": "ChemNode",
-    "lat": 47.02634241186804,
-    "lon": -71.57054451945929
-  },
-  {
-    "DeviceId": "aa-22-16-84",
-    "_id": "64493618a38d5931cb28f30e",
-    "Device": "Sensor 7 MGRS 19T CN 09014 04081",
-    "DeviceType": "ChemNode",
-    "lat": 46.9630556,
-    "lon": -71.51027777777777
-  },
-  {
-    "DeviceId": "aa-27-83-98",
-    "_id": "64493630a38d5931cb28f3f1",
-    "Device": "Sensor 9 MGRS 19T CN  02636 09415",
-    "DeviceType": "ChemNode",
-    "lat": 47.008811,
-    "lon": -71.596505
-  },
-  {
-    "DeviceId": "aa-22-17-23",
-    "_id": "64493652a38d5931cb28f54e",
-    "Device": "Sensor 14 MGRS 19T CN 07682 10147",
-    "DeviceType": "ChemNode",
-    "lat": 47.01683132913645,
-    "lon": -71.53045280843185
-  },
-  {
-    "DeviceId": "aa-22-16-97",
-    "_id": "64493676a38d5931cb28f6b7",
-    "Device": "Sensor 6 MGRS 19T CN 07482 04937",
-    "DeviceType": "ChemNode",
-    "lat": 46.97,
-    "lon": -71.53083333333333
-  },
-  {
-    "DeviceId": "aa-22-16-74",
-    "_id": "644936a6a38d5931cb28f8e0",
-    "Device": "Sensor 8 MGRS 19T CN 07898 03180",
-    "DeviceType": "ChemNode",
-    "lat": 46.9544444,
-    "lon": -71.52472222222222
-  },
-  {
-    "DeviceId": "aa-27-83-47",
-    "_id": "644936e0a38d5931cb28fb9a",
-    "Device": "Sensor_6_BC_Ski_Hill_Bottom",
-    "DeviceType": "ChemNode",
-    "lat": 49.289116,
-    "lon": -68.16795
-  },
-  {
-    "DeviceId": "aa-22-22-58",
-    "_id": "64493701a38d5931cb28fce2",
-    "Device": "Sensor_5_BC_Poste_de_pompage_Fortier",
-    "DeviceType": "ChemNode",
-    "lat": 49.1887,
-    "lon": -68.24505
-  },
-  {
-    "DeviceId": "aa-22-22-33",
-    "_id": "6449371ba38d5931cb28fde0",
-    "Device": "Sensor 17 MGRS 19T BN 99151 05567",
-    "DeviceType": "ChemNode",
-    "lat": 46.973203739538285,
-    "lon": -71.64058536654287
-  },
-  {
-    "DeviceId": "aa-22-22-56",
-    "_id": "64493740a38d5931cb28ff5c",
-    "Device": "Sensor 15 MGRS 19T CN 01694 03410",
-    "DeviceType": "ChemNode",
-    "lat": 46.9544444,
-    "lon": -71.6061111111111
-  },
-  {
-    "DeviceId": "aa-22-16-50",
-    "_id": "64493759a38d5931cb290054",
-    "Device": "Sensor 2 MGRS 19T CN 03547 03000",
-    "DeviceType": "ChemNode",
-    "lat": 46.951406,
-    "lon": -71.581753
-  },
-  {
-    "DeviceId": "aa-31-91-90",
-    "_id": "644fc6b5b2726180b46e2e18",
-    "Device": "Stafford-31-91-90",
-    "DeviceType": "ChemNode",
-    "lat": 38.424,
-    "lon": -77.40818
-  },
-  {
-    "DeviceId": "aa-31-92-12",
-    "_id": "644fc78bb2726180b46e36df",
-    "Device": "Winchester-31-92-12",
-    "DeviceType": "ChemNode",
-    "lat": 39.143138257618574,
-    "lon": -78.14763723277788
-  },
-  {
-    "DeviceId": "aa-22-17-52",
-    "_id": "644fc80db2726180b46e3bd6",
-    "Device": "Stafford-22-17-52",
-    "DeviceType": "Gateway",
-    "lat": 38.42389,
-    "lon": -77.40861
-  },
-  {
-    "DeviceId": "aa-31-90-42",
-    "_id": "644fc852b2726180b46e3ee0",
-    "Device": "Stafford-31-90-42",
-    "DeviceType": "ChemNode",
-    "lat": 39.195016,
-    "lon": -78.161479
-  },
-  {
-    "DeviceId": "00-23-0e-1e",
-    "_id": "644fc894b2726180b46e41a5",
-    "Device": "Stafford-23-0e-1e",
-    "DeviceType": "ChemNode",
-    "lat": 38.42093,
-    "lon": -77.40584
-  },
-  {
-    "DeviceId": "00-22-2f-18",
-    "_id": "644fcaa3b2726180b46e5718",
-    "Device": "Stafford-22-2f-18",
-    "DeviceType": "ChemNode",
-    "lat": 38.4239,
-    "lon": -77.4085
-  },
-  {
-    "DeviceId": "00-26-0e-1b",
-    "_id": "644fcab9b2726180b46e5865",
-    "Device": "Stafford-26-0e-1b",
-    "DeviceType": "ChemNode",
-    "lat": 38.42096,
-    "lon": -77.40573
-  },
-  {
-    "DeviceId": "00-24-0e-15",
-    "_id": "644fcaceb2726180b46e5938",
-    "Device": "Stafford-24-0e-15",
-    "DeviceType": "ChemNode",
-    "lat": 38.421,
-    "lon": -77.40597
-  },
-  {
-    "DeviceId": "00-23-12-0b",
-    "_id": "644fcae5b2726180b46e5a22",
-    "Device": "Stafford-23-12-0b",
-    "DeviceType": "ChemNode",
-    "lat": "",
-    "lon": ""
-  },
-  {
-    "DeviceId": "aa-22-16-39",
-    "_id": "646b6d569fd4d27109e992d6",
-    "Device": "AA-22-16-39",
-    "DeviceType": "ChemNode",
-    "lat": 38.4210886023614,
-    "lon": -77.40570734171537
-  },
-  {
-    "DeviceId": "aa-22-16-72",
-    "_id": "646b6d799fd4d27109e99502",
-    "Device": "AA-22-16-72",
-    "DeviceType": "ChemNode",
-    "lat": 38.42128,
-    "lon": -77.40572
-  },
-  {
-    "DeviceId": "aa-87-25-98",
-    "_id": "646b6d9e9fd4d27109e99725",
-    "Device": "AA-8725-98",
-    "DeviceType": "ChemNode",
-    "lat": 38.421100580581815,
-    "lon": -77.4058691803156
-  },
-  {
-    "DeviceId": "aa-22-22-16",
-    "_id": "646b74656928a2712382d1d1",
-    "Device": "aa-22-22-16",
-    "DeviceType": "Gateway",
-    "lat": 38.42095406564118,
-    "lon": -77.40605586241132
-  },
-  {
-    "DeviceId": "aa-22-22-70",
-    "_id": "64668e71cd6a9a239316613e",
-    "Device": "aa-22-22-70",
-    "DeviceType": "ChemNode",
-    "lat": 37.78391,
-    "lon": -122.15996
-  },
-  {
-    "DeviceId": "aa-22-22-55",
-    "_id": "64668e92cd6a9a239316676c",
-    "Device": "aa-22-22-55",
-    "DeviceType": "ChemNode",
-    "lat": 37.769378,
-    "lon": -122.129213
-  },
-  {
-    "DeviceId": "aa-22-21-90",
-    "_id": "64668eb1cd6a9a2393166c96",
-    "Device": "aa-22-21-90",
-    "DeviceType": "ChemNode",
-    "lat": 37.820904,
-    "lon": -122.20746
-  },
-  {
-    "DeviceId": "aa-22-22-84",
-    "_id": "64668ed2cd6a9a23931672a6",
-    "Device": "aa-22-22-84",
-    "DeviceType": "ChemNode",
-    "lat": 37.816784,
-    "lon": -122.18037
-  },
-  {
-    "DeviceId": "aa-22-22-53",
-    "_id": "64668eeecd6a9a23931677b8",
-    "Device": "aa-22-22-53",
-    "DeviceType": "ChemNode",
-    "lat": 37.789903,
-    "lon": -122.144623
-  },
-  {
-    "DeviceId": "aa-22-16-64",
-    "_id": "64668f14cd6a9a2393167e97",
-    "Device": "aa-22-16-64",
-    "DeviceType": "ChemNode",
-    "lat": 37.840293,
-    "lon": -122.197669
-  },
-  {
-    "DeviceId": "aa-22-17-37",
-    "_id": "64669064cd6a9a239316ba9b",
-    "Device": "aa-22-17-37",
-    "DeviceType": "ChemNode",
-    "lat": 37.860502,
-    "lon": -122.234425
-  },
-  {
-    "DeviceId": "aa-27-91-24",
-    "_id": "64669088cd6a9a239316c0ac",
-    "Device": "aa-27-91-24",
-    "DeviceType": "ChemNode",
-    "lat": 37.809367,
-    "lon": -122.191363
-  },
-  {
-    "DeviceId": "aa-22-22-32",
-    "_id": "646690accd6a9a239316c702",
-    "Device": "aa-22-22-32",
-    "DeviceType": "ChemNode",
-    "lat": 37.850262,
-    "lon": -122.226519
-  },
-  {
-    "DeviceId": "aa-22-17-04",
-    "_id": "646eb3fd6928a27123c0c532",
-    "Device": "aa-22-17-04",
-    "DeviceType": "ChemNode",
-    "lat": 37.736324,
-    "lon": -122.132412
-  },
-  {
-    "DeviceId": "NOAA-20-1",
-    "_id": "US1",
-    "Device": "NOAA-20-1",
-    "DeviceType": "Incident",
-    "Acquired": "2024-06-16 02:23:00",
-    "lat": 47.4691,
-    "lon": -122.05036
-  },
-  {
-    "DeviceId": "L8-2",
-    "_id": "US2",
-    "Device": "L8-2",
-    "DeviceType": "Incident",
-    "Acquired": "2024-06-16 00:25:00",
-    "lat": 46.037562,
-    "lon": -122.777138
-  },
-  {
-    "DeviceId": "L8-3",
-    "_id": "US3",
-    "Device": "L8-3",
-    "DeviceType": "Incident",
-    "Acquired": "2024-06-16 00:25:00",
-    "lat": 45.287991,
-    "lon": -122.590344
-  },
-  {
-    "DeviceId": "VIIRS-4",
-    "_id": "US4",
-    "Device": "VIIRS-4",
-    "DeviceType": "Incident",
-    "Acquired": "2024-06-16 01:59:00",
-    "lat": 48.17286,
-    "lon": -120.51059
-  },
-  {
-    "DeviceId": "NOAA-20-5",
-    "_id": "US5",
-    "Device": "NOAA-20-5",
-    "DeviceType": "Incident",
-    "Acquired": "2024-06-16 02:23:00",
-    "lat": 46.4547,
-    "lon": -120.09995
-  },
-  {
-    "DeviceId": "NOAA-20-6",
-    "_id": "US6",
-    "Device": "NOAA-20-6",
-    "DeviceType": "Incident",
-    "Acquired": "2024-06-16 02:23:00",
-    "lat": 46.56174,
-    "lon": -118.21544
-  },
-  {
-    "DeviceId": "L8-7",
-    "_id": "US7",
-    "Device": "L8-7",
-    "DeviceType": "Incident",
-    "Acquired": "2024-06-15 23:37:00",
-    "lat": 38.171309,
-    "lon": -112.449456
-  },
-  {
-    "DeviceId": "L8-8",
-    "_id": "US8",
-    "Device": "L8-8",
-    "DeviceType": "Incident",
-    "Acquired": "2024-06-15 22:49:00",
-    "lat": 32.437284,
-    "lon": -101.382097
-  },
-  {
-    "DeviceId": "L8-9",
-    "_id": "US9",
-    "Device": "L8-9",
-    "DeviceType": "Incident",
-    "Acquired": "2024-06-15 22:49:00",
-    "lat": 36.893268,
-    "lon": -89.383357
+    "_id": "cluster-41",
+    "Device": "cluster-41",
+    "DeviceId": "cluster-41",
+    "DeviceType": "cluster",
+    "lat": 42.1186,
+    "lon": -123.5797
+  },
+  {
+    "_id": "cluster-42",
+    "Device": "cluster-42",
+    "DeviceId": "cluster-42",
+    "DeviceType": "cluster",
+    "lat": 42.2754,
+    "lon": -123.6324
+  },
+  {
+    "_id": "cluster-43",
+    "Device": "cluster-43",
+    "DeviceId": "cluster-43",
+    "DeviceType": "cluster",
+    "lat": 43.1445,
+    "lon": -123.4292
+  },
+  {
+    "_id": "cluster-44",
+    "Device": "cluster-44",
+    "DeviceId": "cluster-44",
+    "DeviceType": "cluster",
+    "lat": 43.3633,
+    "lon": -123.0577
+  },
+  {
+    "_id": "cluster-45",
+    "Device": "cluster-45",
+    "DeviceId": "cluster-45",
+    "DeviceType": "cluster",
+    "lat": 43.7495,
+    "lon": -122.4758
+  },
+  {
+    "_id": "cluster-46",
+    "Device": "cluster-46",
+    "DeviceId": "cluster-46",
+    "DeviceType": "cluster",
+    "lat": 43.9123,
+    "lon": -123.7387
+  },
+  {
+    "_id": "cluster-47",
+    "Device": "cluster-47",
+    "DeviceId": "cluster-47",
+    "DeviceType": "cluster",
+    "lat": 44.0014,
+    "lon": -123.1085
+  },
+  {
+    "_id": "cluster-48",
+    "Device": "cluster-48",
+    "DeviceId": "cluster-48",
+    "DeviceType": "cluster",
+    "lat": 44.1246,
+    "lon": -122.6256
+  },
+  {
+    "_id": "cluster-49",
+    "Device": "cluster-49",
+    "DeviceId": "cluster-49",
+    "DeviceType": "cluster",
+    "lat": 44.1349,
+    "lon": -122.276
+  },
+  {
+    "_id": "cluster-50",
+    "Device": "cluster-50",
+    "DeviceId": "cluster-50",
+    "DeviceType": "cluster",
+    "lat": 44.3386,
+    "lon": -121.3395
+  },
+  {
+    "_id": "cluster-51",
+    "Device": "cluster-51",
+    "DeviceId": "cluster-51",
+    "DeviceType": "cluster",
+    "lat": 44.3818,
+    "lon": -123.5904
+  },
+  {
+    "_id": "cluster-52",
+    "Device": "cluster-52",
+    "DeviceId": "cluster-52",
+    "DeviceType": "cluster",
+    "lat": 44.2816,
+    "lon": -123.3181
+  },
+  {
+    "_id": "cluster-53",
+    "Device": "cluster-53",
+    "DeviceId": "cluster-53",
+    "DeviceType": "cluster",
+    "lat": 44.5349,
+    "lon": -122.931
+  },
+  {
+    "_id": "cluster-54",
+    "Device": "cluster-54",
+    "DeviceId": "cluster-54",
+    "DeviceType": "cluster",
+    "lat": 44.8412,
+    "lon": -122.4834
+  },
+  {
+    "_id": "cluster-55",
+    "Device": "cluster-55",
+    "DeviceId": "cluster-55",
+    "DeviceType": "cluster",
+    "lat": 45.8531,
+    "lon": -123.2475
   }
 ]

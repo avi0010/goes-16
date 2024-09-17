@@ -18,6 +18,11 @@ from geojson.utils import coords
 
 load_dotenv()
 
+aws_region = os.getenv('AWS_REGION')
+aws_timestream_db = os.getenv('AWS_TIMESTREAM_DATABASE')
+aws_timestream_table = os.getenv('AWS_TIMESTREAM_TABLE')
+hotspot_base_dir = os.getenv("BASE_PERIMETERS_DIR")
+
 def reproject_geojson(geojson_path, src_crs, dst_crs, output_path):
 
     def get_coords_from_polygon(shape):
@@ -114,13 +119,9 @@ def prepare_timestream_record(stationID, current_time, coords):
     return record
 
 #WRITE A LIST OF RECORDS TO THE TIMESTREAM
-def write_timestream(records, db='n5-timestream', table='hotspot-perimeters'): 
-    #boto3.client('timestream-write').write_records(
-    #DatabaseName=db, TableName=table,
-    #Records = records
-    #)
+def write_timestream(records, db='n5-development', table='n5-goes-hotspot-detection'): 
     
-    timestream_write = boto3.client('timestream-write', region_name='us-east-2')
+    timestream_write = boto3.client('timestream-write', region_name='us-east-1')
     try:
         timestream_write.write_records(DatabaseName=db, TableName=table, Records=records)
     except timestream_write.exceptions.RejectedRecordsException as err:
@@ -133,7 +134,6 @@ def write_timestream(records, db='n5-timestream', table='hotspot-perimeters'):
 
 if __name__ == '__main__':
 
-    hotspot_base_dir = os.getenv("BASE_PERIMETERS_DIR")
     hotspot_files = [os.path.join(hotspot_base_dir, file) for file in os.listdir(hotspot_base_dir) if file.find('json') > 0]
 
     try:
@@ -149,7 +149,10 @@ if __name__ == '__main__':
 
             # convert goes img scan time str to unix timestamp
             acquisition_time_str = os.path.basename(gj).replace('hotspots_', '').replace('.json', '')
-            acquisition_timestamp = int(datetime.strptime(acquisition_time_str, '%Y-%m-%d %H:%M:%S.%f').timestamp() * 1000)
+            try:
+                acquisition_timestamp = int(datetime.strptime(acquisition_time_str, '%Y-%m-%d %H:%M:%S.%f').timestamp() * 1000)
+            except ValueError:
+                acquisition_timestamp = int(datetime.strptime(acquisition_time_str, '%Y-%m-%d %H:%M:%S').timestamp() * 1000)
 
             for feature in geojson_data['features']:
 
@@ -164,8 +167,9 @@ if __name__ == '__main__':
         #Write to timestream
         write_timestream(records_to_write)
 
+        # Cleanup
+        shutil.rmtree(hotspot_base_dir)
     except Exception:
         raise
     finally:
-        # Cleanup
-        shutil.rmtree(hotspot_base_dir)
+        pass
