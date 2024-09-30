@@ -13,9 +13,26 @@ from tqdm import tqdm
 from datetime import datetime
 from osgeo import gdal, ogr, osr
 from dotenv import load_dotenv
+import analysis_utils
+import matplotlib.pyplot as plt
 import shutil
 
 load_dotenv()
+cm = plt.get_cmap("viridis")
+
+def rgb_image(dict, path):
+    gamma = 2.2
+    B = np.array(Image.open(os.path.join(path, dict[1])))
+    R = np.array(Image.open(os.path.join(path, dict[2])))
+    G = np.array(Image.open(os.path.join(path, dict[3])))
+
+    B = np.power(B, 1/gamma)
+    G = np.power(G, 1/gamma)
+    R = np.power(R, 1/gamma)
+
+    G_true = 0.45 * R + 0.1 * G + 0.45 * B
+    RGB = (np.dstack([R, G_true, B]) * 255).astype(np.uint8)
+    return Image.fromarray(RGB)
 
 def parse_filename(filename: str) -> dict:
     if filename.startswith("OR_"):
@@ -308,6 +325,35 @@ if __name__ == "__main__":
                 fires.append(ModelInput([os.path.join(patch_dir, fire, x) for x in v]))
         else:
             fires.append(ModelInput(os.path.join(patch_dir, fire)))
+
+        d = _split_file(os.path.join(patch_dir, fire))
+
+        for k,v in d.items():
+
+            dict = {}
+            for file in v:
+                f = parse_filename(file)
+                dict[f["channel"]] = file
+
+            final_image = Image.new(
+                "RGB",
+                (560, 32),
+                color="black")
+
+            final_image.paste(rgb_image(dict, os.path.join(patch_dir, fire)), (0, 0))
+
+            for i in range(1, 17):
+                file = dict[i]
+                img_path = os.path.join(patch_dir, fire, file)
+                f = parse_filename(file)
+                img = Image.open(img_path)
+                im = np.array(img).tolist()
+                im = analysis_utils.scale_values(im, f["channel"])
+                im = np.uint8(cm(im) * 255)
+                im = Image.fromarray(im)
+                final_image.paste(im, (i * 33, 0))
+
+            final_image.save(f"{patch_dir}/{fire}/{str(k)}.png")
 
     transform = v2.Compose(
         [
