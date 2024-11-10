@@ -33,7 +33,7 @@ class ViirsPoint:
         date = f"{properties['ACQ_DATE']} {properties['ACQ_TIME']}"
         lat = properties["LATITUDE"]
         lon = properties["LONGITUDE"]
-        bri = properties["BRIGHTNESS"]
+        bri = properties["BRIGHT_TI5"]
         frp = properties["FRP"]
 
         return cls(lat, lon, bri, frp, date)
@@ -150,8 +150,8 @@ class ViirsDataset:
         if not os.path.exists(save_dir):
             os.mkdir(save_dir)
 
-        x_random = int(random.uniform(-1 * (win_size // 2), win_size // 2))
-        y_random = int(random.uniform(-1 * (win_size // 2), win_size // 2))
+        x_random = int(random.uniform(-1 * (win_size // 3), win_size // 3))
+        y_random = int(random.uniform(-1 * (win_size // 3), win_size // 3))
 
         for file in os.listdir(self.download_dir):
             self.__patchify_file(os.path.join(self.download_dir, file), x_random, y_random, save_dir, win_size)
