@@ -214,12 +214,12 @@ class ViirsDataset:
                 self.__polygons.append(poly)
                 multipolygon.AddGeometry(poly)
 
-                feature_defn = mem_layer.GetLayerDefn()
-                feature = ogr.Feature(feature_defn)
-                feature.SetGeometry(multipolygon)
-                mem_layer.CreateFeature(feature)
-                gdal.RasterizeLayer(target_layer, [1], mem_layer, burn_values=[1], options=["ALL_TOUCHED=TRUE"])
-
+        feature_defn = mem_layer.GetLayerDefn()
+        feature = ogr.Feature(feature_defn)
+        print(multipolygon)
+        feature.SetGeometry(multipolygon)
+        mem_layer.CreateFeature(feature)
+        gdal.RasterizeLayer(target_layer, [1], mem_layer, burn_values=[255], options=["ALL_TOUCHED=TRUE"])
         gdal.Translate(f"{dir_path}/output.tiff", target_layer, format="GTiff")
         
     def process_dir(self, dir_path:str):
