@@ -8,7 +8,7 @@ from viirs import ViirsDataset
 
 class Val_ViirsDataset(ViirsDataset):
     def __init__(self, dir_location:str) -> None:
-        super().__init__(dir_location, min_samples=10, eps=0.015)
+        super().__init__(dir_location, min_samples=8, eps=0.015)
         self.unique_dates = datetime(2024, 11, 8)
 
     def __clean_up(self, dir:str):
