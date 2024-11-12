@@ -130,4 +130,8 @@ $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/
 
 #Writing to timestream database (only can be done from prod server)
 $   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 deployment/timestream_writer.py
+
+#Viirs Validation
+$   python3 viirs/val.py
+$   sh run.sh
 ```
