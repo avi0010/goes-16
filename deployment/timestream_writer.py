@@ -132,6 +132,17 @@ def write_timestream(records, db='n5-development', table='n5-goes-hotspot-detect
         print(f"Error: {err}")
     return
 
+def chunker(input_list, chunk_size):
+    """
+    A generator function to yield fixed-size chunks from a given list.
+
+    :param input_list: The list to be divided into chunks
+    :param chunk_size: The size of each chunk
+    :yield: A chunk of the list of size chunk_size
+    """
+    for i in range(0, len(input_list), chunk_size):
+        yield input_list[i:i + chunk_size]
+
 if __name__ == '__main__':
 
     hotspot_files = [os.path.join(hotspot_base_dir, file) for file in os.listdir(hotspot_base_dir) if file.find('json') > 0]
@@ -165,7 +176,8 @@ if __name__ == '__main__':
         print(f'Writing {len(records_to_write)} records')
 
         #Write to timestream
-        write_timestream(records_to_write)
+        for chunk in chunker(records_to_write, 100):
+            write_timestream(chunk)
 
         # Cleanup
         shutil.rmtree(hotspot_base_dir)

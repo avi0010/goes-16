@@ -79,6 +79,6 @@ class Val_ViirsDataset(ViirsDataset):
             print(e)
 
 if __name__ == '__main__':
-    shape_file = "/home/aveekal/Downloads/J1_VIIRS_C2_USA_contiguous_and_Hawaii_24h/J1_VIIRS_C2_USA_contiguous_and_Hawaii_24h.shp"
+    shape_file = "./files/viirs_data/J1_VIIRS_C2_USA_contiguous_and_Hawaii_24h.shp"
     dataset = Val_ViirsDataset(shape_file)
     dataset.download("ttttt", date_range=0)
