@@ -1,0 +1,21 @@
+from download import Downloader
+from node import Node, parse_json
+from datetime import datetime, timedelta
+import argparse
+
+if __name__ == "__main__":
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--timestamp", required=True)
+
+    args = parser.parse_args()
+
+    TIME  = datetime.strptime(args.timestamp, "%Y/%m/%d %H:%M:%S")
+
+    down = Downloader()
+    down.download_datetime(TIME)
+
+    nodes = parse_json("./data/locations/locations.json")
+        
+    for i, node in enumerate(nodes):
+        node.crop()
