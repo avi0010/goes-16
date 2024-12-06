@@ -3,7 +3,7 @@ end="2024-11-10 00:00:00"
 mkdir validation_data
 while [ "$start" != "$end" ]; do 
   echo $start
-  sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 ./deployment/download_string -t $d
+  sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 ./deployment/download_string -t $start
   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 ./deployment/node.py
   sudo docker run --rm  -v ".:/app" goes_downloader:stable python3 ./deployment/infer.py
   mv $BASE_PATHES_DIR validation_data/$start
