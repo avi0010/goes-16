@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    TIME  = datetime.strptime(args.timestamp, "%Y/%m/%d %H:%M:%S")
+    TIME  = datetime.strptime(args.timestamp, "%Y-%m-%d %H:%M:%S")
 
     down = Downloader()
     down.download_datetime(TIME)
